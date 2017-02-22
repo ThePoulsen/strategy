@@ -32,18 +32,21 @@ flask_sijax.Sijax(app)
 
 ## Import models
 from app.admin.models import *
+from app.masterData.models import *
 
 ## import blueprints
 from app.admin.views import adminBP
 from app.auth.views import authBP
 from app.settings.views import settingsBP
 from app.user.views import userBP
+from app.masterData.views import mdBP
 
 ## Register blueprints
 app.register_blueprint(adminBP, url_prefix='/admin')
 app.register_blueprint(authBP, url_prefix='/auth')
 app.register_blueprint(settingsBP, url_prefix='/settings')
 app.register_blueprint(userBP, url_prefix='/usr')
+app.register_blueprint(mdBP, url_prefix='/md')
 
 
 # indexView
