@@ -47,6 +47,14 @@ class country(db.Model):
     code = db.Column(db.Integer)
 
     subRegion_id = db.Column(db.Integer, db.ForeignKey('subRegion.id'))
+    language_id = db.Column(db.Integer, db.ForeignKey('language.id'))
+
+class language(db.Model):
+    __tablename__ = 'language'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String())
+    locale = db.Column(db.String())
 
 class region(db.Model):
     __tablename__ = 'region'
@@ -96,7 +104,7 @@ class responsibilityAssignment(db.Model):
     reference_id = db.Column(db.Integer)
     responsibilityType_id = db.Column(db.Integer, db.ForeignKey('responsibilityType.id'))
 
-    user_id = db.Column(db.Integer)
+    user_uuid = db.Column(db.String)
 
 class UOM(db.Model):
     __tablename__ = 'UOM'
