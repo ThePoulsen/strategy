@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 import csv
 from app import db
-from app.masterData.models import weekDay, month, quarter, calendar, region, subRegion, country, taskStatus, responsibilityType, responsibilityObject, strategyLevel, UOM, measurementFrequency, actionStatus, processType, indicatorType
+from app.masterData.models import weekDay, month, quarter, calendar, region, subRegion, country, taskStatus, responsibilityType, responsibilityObject, strategyLevel, UOM, measurementFrequency, actionStatus, processType, indicatorType, goodPerformance
 
 weekDays = [('Monday','Mon','1'),
         ('Tuesday','Tue','2'),
@@ -47,6 +47,8 @@ processTyp = ['Safety','Quality','Delivery','Cost','Productivity']
 
 indicatorTyp = ['KPI','PPI','PI','KRI']
 
+goodPerf = ['Above target', 'Below target', 'On target']
+
 calData = csv.reader(open('calendar.csv','r'), delimiter=';')
 next(calData, None)
 
@@ -54,40 +56,54 @@ world = csv.reader(open('world.csv','r'))
 next(world, None)
 
 def createMasterData():
+    for g in goodPerf:
+        perf = [r.title for r in goodPerformance.query.all()]
+        if not g in perf:
+            db.session.add(goodPerformance(title=g))
+
     for p in processTyp:
-        if not processType.query.filter_by(title=p).first():
+        proc = [r.title for r in processType.query.all()]
+        if not p in proc:
             db.session.add(processType(title=p))
 
     for t in indicatorTyp:
-        if not indicatorType.query.filter_by(title=t).first():
+        typ = [r.title for r in indicatorType.query.all()]
+        if not t in typ:
             db.session.add(indicatorType(title=t))
 
     for mf in measurementFreq:
-        if not measurementFrequency.query.filter_by(title=mf).first():
+        freq = [r.title for r in measurementFrequency.query.all()]
+        if not mf in freq:
             db.session.add(measurementFrequency(title=mf))
 
     for st in actionStat:
-        if not actionStatus.query.filter_by(title=st).first():
+        stat = [r.title for r in actionStatus.query.all()]
+        if not st in stat:
             db.session.add(actionStatus(title=st))
 
     for unit in uom:
-        if not UOM.query.filter_by(title=unit).first():
+        uo = [r.title for r in UOM.query.all()]
+        if not st in uo:
             db.session.add(UOM(title=unit))
 
     for obj in respObject:
-        if not responsibilityObject.query.filter_by(title=obj).first():
+        resp = [r.title for r in responsibilityObject.query.all()]
+        if not obj in resp:
             db.session.add(responsibilityObject(title=obj))
 
     for typ in respType:
-        if not responsibilityType.query.filter_by(title=typ).first():
+        types = [r.title for r in responsibilityType.query.all()]
+        if not typ in types:
             db.session.add(responsibilityType(title=typ))
 
     for stat in taskStat:
-        if not taskStatus.query.filter_by(title=stat).first():
+        stats = [r.title for r in taskStatus.query.all()]
+        if not stat in stats:
             db.session.add(taskStatus(title=stat))
 
     for lvl in stratLevel:
-        if not strategyLevel.query.filter_by(title=lvl).first():
+        lvls = [r.title for r in strategyLevel.query.all()]
+        if not lvl in lvls:
             db.session.add(strategyLevel(title=lvl))
 
     for day, abbr, no in weekDays:
@@ -103,7 +119,6 @@ def createMasterData():
             db.session.add(quarter(no=no,title=qty))
 
     for calDate, day, week, mo, qty, year in calData:
-
         weekDay_id = weekDay.query.filter_by(no=day).first().id
         month_id = month.query.filter_by(no=mo).first().id
         quarter_id = quarter.query.filter_by(no=qty).first().id

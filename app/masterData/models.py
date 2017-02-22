@@ -139,3 +139,10 @@ class indicatorType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(), unique=True)
     desc = db.Column(db.String())
+
+class goodPerformance(db.Model):
+    __tablename__ = 'goodPerformance'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(), unique=True)
+    desc = db.Column(db.String())
