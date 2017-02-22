@@ -1,0 +1,60 @@
+{% set parentNav = [
+    (['User','Superuser','Administrator'], 'fa-home', 'fa-chevron-down', 'index', 'Home'),
+    (['Administrator'], 'fa-cog', 'fa-chevron-down', 'settings', 'Settings'),
+    (['User','Superuser','Administrator'], 'fa-credit-card', 'fa-chevron-down', 'userProfile', 'Profile'),
+] -%}
+
+{% set childNav = [
+    (['User','Superuser','Administrator'], 'indexView', 'Home', 'index'),
+
+    (['Administrator'], 'settingsBP.companyView', 'Company', 'settings'),
+    (['Administrator'], 'settingsBP.settingsView', 'Program settings', 'settings'),
+    (['Administrator'], 'userBP.userView', 'User Management', 'settings'),
+    (['Administrator'], 'userBP.groupView', 'User / Email groups', 'settings'),
+
+    (['User','Superuser','Administrator'], 'userBP.userProfileView', 'Show profile', 'userProfile'),
+    (['User','Superuser','Administrator'], 'userBP.changePasswordView', 'Change password', 'userProfile'),
+
+
+] -%}
+
+<div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+<div class="menu_section">
+<ul class="nav side-menu">
+
+
+{% if session['token'] %}
+    {% for authList, class, span, title, header in parentNav %}
+    {% for role in session['roles'] %}
+    {% for auth in authList %}
+
+    {% if auth == role %}
+        <li><a ><i class="fa {{class|e}}"></i> {{header|safe}} <span class="fa {{span|e}}"></span></a>
+            <ul class="nav child_menu">
+                {% for authList2,  view, header2, parent in childNav %}
+                {% for role2 in session['roles'] %}
+                {% for auth2 in authList2 %}
+                {% if auth2 == role2 %}
+                {% if parent == title %}
+                    <li>
+                        <a href="{{url_for(view|e)}}">{{header2|e}}</a>
+                    </li>
+                {% endif %}
+                {% endif %}
+                {% endfor %}
+                {% endfor %}
+                {% endfor %}
+            </ul>
+        </li>
+    {% endif %}
+    {% endfor %}
+    {% endfor %}
+    {% endfor %}
+    {% else %}
+<li><a id="registerView" class="" href="{{url_for('authBP.registerView')}}">Register</a></li>
+{% endif %}
+
+
+</ul>
+</div>
+</div>
