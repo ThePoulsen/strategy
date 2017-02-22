@@ -146,5 +146,4 @@ def createMasterData():
                                        alpha3=r[2],
                                        code=r[3]))
 
-
     db.session.commit()
