@@ -1,7 +1,8 @@
 {% set parentNav = [
     (['User','Superuser','Administrator'], 'fa-home', 'fa-chevron-down', 'index', 'Home'),
     (['Administrator'], 'fa-cog', 'fa-chevron-down', 'settings', 'Settings'),
-    (['User','Superuser','Administrator'], 'fa-credit-card', 'fa-chevron-down', 'userProfile', 'Profile'),
+    (['User','Superuser','Administrator'], 'fa-user', 'fa-chevron-down', 'userProfile', 'Profile'),
+    (['User','Superuser','Administrator'], 'fa-line-chart', 'fa-chevron-down', 'performance', 'Performance'),
 ] -%}
 
 {% set childNav = [
@@ -14,6 +15,8 @@
 
     (['User','Superuser','Administrator'], 'userBP.userProfileView', 'Show profile', 'userProfile'),
     (['User','Superuser','Administrator'], 'userBP.changePasswordView', 'Change password', 'userProfile'),
+
+    (['User','Superuser','Administrator'], 'perfBP.indicatorListView', 'Indicators', 'performance'),
 
 
 ] -%}

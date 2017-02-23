@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block title %}{{title|safe}}{% endblock %}
+{% block content %}
+<div style="width:{{formWidth|safe}}px;">
+<div class="x_panel">
+<div class="x_title">
+<h2>{{contentTitle|safe}}</h2>
+<div class="clearfix"></div>
+</div>
+<div class="x_content">
+
+
+<form method="post" name="userForm" id="userForm">
+    {{ indicatorForm.indicatorTitle.label }}
+    {{ indicatorForm.indicatorTitle(class_='form-control ')}}
+    {% for error in indicatorForm.indicatorTitle.errors %}
+        <p>{{error}}</p>
+    {% endfor %}
+    <br>
+    {{ indicatorForm.indicatorDesc.label }}
+    {{ indicatorForm.indicatorDesc(class_='form-control ')}}
+    {% for error in indicatorForm.indicatorDesc.errors %}
+        <p>{{error}}</p>
+    {% endfor %}
+    <br>
+    {{ indicatorForm.indicatorDataSource.label }}
+    {{ indicatorForm.indicatorDataSource(class_='form-control ')}}
+    {% for error in indicatorForm.indicatorDataSource.errors %}
+        <p>{{error}}</p>
+    {% endfor %}
+    <br>
+    {{ indicatorForm.indicatorMeasurementFrequency.label }}
+    {{ indicatorForm.indicatorMeasurementFrequency(class_='form-control ')}}
+    {% for error in indicatorForm.indicatorMeasurementFrequency.errors %}
+        <p>{{error}}</p>
+    {% endfor %}
+    <br>
+    {{ indicatorForm.indicatorUOM.label }}
+    {{ indicatorForm.indicatorUOM(class_='form-control ')}}
+    {% for error in indicatorForm.indicatorUOM.errors %}
+        <p>{{error}}</p>
+    {% endfor %}
+    <br>
+
+    <br><br>
+    <div class="input-group" style="float:right;">
+        {{ indicatorForm.csrf_token }}
+        <a href="#" onclick="window.history.back();">Cancel</a> &nbsp
+        {{indicatorForm.indicatorSubmit()}}
+    </div>
+</form>
+
+<!-- Modal -->
+<div class="modal" id="newGroupModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog"  style="width:400px;">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <button type="button" class="close"
+                   data-dismiss="modal">
+                       <span aria-hidden="true">&times;</span>
+                       <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    New Group
+                </h4>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
+{% block foot %}
+{{ super() }}
+<script type="text/javascript" src="/static/js/sijax/sijax.js"></script>
+<script type="text/javascript">{{ g.sijax.get_js()|safe }}</script>
+
+<!--Form sijax submission-->
+<script type="text/javascript">
+$(function() {
+    $('#newGroupFrom').bind('submit', function() {
+        //Get form values
+        var values = Sijax.getFormValues('#newGroupFrom');
+        //Send form values to sijax handler
+        Sijax.request('userFormGroupModal', [values]);
+        //Prevent the form from being submitted
+        return false;
+    });
+});
+</script>
+
+{% endblock %}

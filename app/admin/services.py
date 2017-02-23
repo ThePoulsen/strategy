@@ -57,7 +57,7 @@ def getRoles():
         return req['roles']
 
 # flask view decorators
-def requiredRole(*role):
+def requiredRole(*roleList):
     def wrapper(f):
         @wraps(f)
         def wrapped(*args, **kwargs):
@@ -65,8 +65,9 @@ def requiredRole(*role):
                 return redirect(url_for('authBP.loginView'))
             roles = getRoles()
             if roles:
-                if role[0] not in roles:
-                    return abort(403)
+                if not any([i in roleList[0] for i in roles]):
+                    errorMessage('You are not authorized to access this content')
+                    return redirect(url_for('indexView'))
             return f(*args, **kwargs)
         return wrapped
     return wrapper

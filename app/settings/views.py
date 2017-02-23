@@ -13,7 +13,7 @@ import flask_sijax, sys
 settingsBP = Blueprint('settingsBP', __name__, template_folder='templates')
 
 @flask_sijax.route(settingsBP, '/company')
-@requiredRole(u'Administrator')
+@requiredRole([u'Administrator'])
 @loginRequired
 def companyView():
 
@@ -82,7 +82,7 @@ def companyView():
 
 
 @settingsBP.route('/settings')
-@requiredRole(u'Administrator')
+@requiredRole([u'Administrator'])
 @loginRequired
 def settingsView():
     kwargs = {'title':'Settings',

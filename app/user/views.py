@@ -14,15 +14,15 @@ userBP = Blueprint('userBP', __name__, template_folder='templates')
 
 # User profile
 @userBP.route('/profile', methods=['GET'])
-@requiredRole('User')
+@requiredRole([u'User', u'Superuser', u'Administrator'])
 @loginRequired
 def userProfileView():
-    kwargs = {'title':'User profile'}
+#    kwargs = {'title':'User profile'}
 
-    return render_template('user/userProfileView.html', **kwargs)
+    return render_template('user/userProfileView.html')
 
 @userBP.route('/changePassword', methods=['GET','POST'])
-@requiredRole('User')
+@requiredRole([u'User', u'Superuser', u'Administrator'])
 @loginRequired
 def changePasswordView():
     kwargs = {'formWidth':300,
@@ -63,7 +63,7 @@ def changePasswordView():
 @flask_sijax.route(userBP, '/user', methods=['GET'])
 @flask_sijax.route(userBP, '/user/<string:function>', methods=['GET', 'POST'])
 @flask_sijax.route(userBP, '/user/<string:function>/<string:uuid>', methods=['GET', 'POST'])
-@requiredRole(u'Administrator')
+@requiredRole([u'Administrator', u'Superuser'])
 @loginRequired
 def userView(uuid=None, function=None):
     # universal variables
@@ -173,7 +173,7 @@ def userView(uuid=None, function=None):
 @userBP.route('/group/<string:function>', methods=['GET', 'POST'])
 @userBP.route('/group/<string:function>/<string:uuid>', methods=['GET', 'POST'])
 @loginRequired
-@requiredRole(u'Administrator')
+@requiredRole([u'Administrator', u'Superuser'])
 def groupView(function=None, uuid=None):
     # global variables
     kwargs = {'title':'User groups',

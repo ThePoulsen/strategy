@@ -6,14 +6,14 @@ class quarter(db.Model):
     __tablename__ = 'quarter'
 
     id = db.Column(db.Integer, primary_key=True)
-    no = db.Column(db.Integer)
+    no = db.Column(db.Integer, unique=True)
     title = db.Column(db.String(), unique=True)
 
 class month(db.Model):
     __tablename__ = 'month'
 
     id = db.Column(db.Integer, primary_key=True)
-    no = db.Column(db.Integer)
+    no = db.Column(db.Integer, unique=True)
     title = db.Column(db.String(), unique=True)
     abbr = db.Column(db.String(), unique=True)
 
@@ -21,7 +21,7 @@ class weekDay(db.Model):
     __tablename__ = 'weekDay'
 
     id = db.Column(db.Integer, primary_key=True)
-    no = db.Column(db.Integer)
+    no = db.Column(db.Integer, unique=True)
     title = db.Column(db.String(), unique=True)
     abbr = db.Column(db.String(), unique=True)
 
@@ -41,7 +41,7 @@ class country(db.Model):
     __tablename__ = 'country'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String())
+    name = db.Column(db.String(), unique=True)
     alpha2 = db.Column(db.String())
     alpha3 = db.Column(db.String())
     code = db.Column(db.Integer)
@@ -53,21 +53,21 @@ class language(db.Model):
     __tablename__ = 'language'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String())
+    name = db.Column(db.String(), unique=True)
     locale = db.Column(db.String())
 
 class region(db.Model):
     __tablename__ = 'region'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String())
+    name = db.Column(db.String(), unique=True)
     code = db.Column(db.Integer)
 
 class subRegion(db.Model):
     __tablename__ = 'subRegion'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String())
+    name = db.Column(db.String(), unique=True)
     code = db.Column(db.Integer)
 
     region_id = db.Column(db.Integer, db.ForeignKey('region.id'))
@@ -98,12 +98,12 @@ class responsibilityObject(db.Model):
 
 class responsibilityAssignment(db.Model):
     __tablename__ = 'responsibilityAssignment'
+    __table_args__ = (db.UniqueConstraint('responsibilityObject_id', 'reference_id', 'responsibilityType_id', 'user_uuid'),)
 
     id = db.Column(db.Integer, primary_key=True)
     responsibilityObject_id = db.Column(db.Integer, db.ForeignKey('region.id'))
     reference_id = db.Column(db.Integer)
     responsibilityType_id = db.Column(db.Integer, db.ForeignKey('responsibilityType.id'))
-
     user_uuid = db.Column(db.String)
 
 class UOM(db.Model):
@@ -111,7 +111,7 @@ class UOM(db.Model):
     __table_args__ = (db.UniqueConstraint('title', 'abbr', name='_title_abbr'),)
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String())
+    title = db.Column(db.String(), unique=True)
     abbr = db.Column(db.String())
 
 class actionStatus(db.Model):

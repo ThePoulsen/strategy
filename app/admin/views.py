@@ -8,7 +8,7 @@ adminBP = Blueprint('adminBP', __name__, template_folder='templates')
 
 # Admin view
 @adminBP.route('/')
-@requiredRole(u'siteAdmin')
+@requiredRole([u'SiteAdmin'])
 @loginRequired
 def adminView():
     kwargs = {'title':'Admin'}
