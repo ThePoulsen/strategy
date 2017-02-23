@@ -5,9 +5,10 @@ from app import db
 from flask import Blueprint, render_template, request, redirect, url_for, session, g
 from app.admin.services import requiredRole, loginRequired, errorMessage, successMessage
 from models import indicator
-from app.masterData.models import measurementFrequency
 from app.crud.tenantCRUD import getCurrentTenant
+from app.crud.userCRUD import getUsers
 from forms import indicatorForm
+from app.masterData.models import measurementFrequency, UOM, processType, indicatorType, goodPerformance
 
 perfBP = Blueprint('perfBP', __name__, template_folder='templates')
 
@@ -47,10 +48,38 @@ def indicatorDetailsView(uuid=None):
 @loginRequired
 @requiredRole([u'Superuser', u'Administrator'])
 def indicatorManagementView(uuid=None, function=None):
-    kwargs = {'formWidth':'500'}
+    kwargs = {}
+    # measurement frequencies
+    freq = [(r.id,r.title) for r in measurementFrequency.query.all()]
+    freq.insert(0,('',''))
+    # Units of measure
+    uomList = [(r.id,r.title) for r in UOM.query.order_by(UOM.title.asc()).all()]
+    uomList.insert(0,('',''))
+    # Units of measure
+    pt = [(r.id,r.title) for r in processType.query.order_by(processType.title.asc()).all()]
+    pt.insert(0,('',''))
+    # Units of measure
+    it = [(r.id,r.title) for r in indicatorType.query.order_by(indicatorType.title.asc()).all()]
+    it.insert(0,('',''))
+    # Units of measure
+    gp = [(r.id,r.title) for r in goodPerformance.query.order_by(goodPerformance.title.asc()).all()]
+    gp.insert(0,('',''))
+    # owner/resp
+    usrList = [(r['uuid'],r['name']) for r in getUsers()['users']]
+    usrList.insert(0,('',''))
 
+
+    # functions
     if function == 'new' and uuid == None:
         indicatorFrm = indicatorForm()
+        indicatorFrm.indicatorMeasurementFrequency.choices = freq
+        indicatorFrm.indicatorUOM.choices = uomList
+        indicatorFrm.indicatorProcessType.choices = pt
+        indicatorFrm.indicatorIndicatorType.choices = it
+        indicatorFrm.indicatorGoodPerformance.choices = gp
+        indicatorFrm.indicatorOwner.choices = usrList
+        indicatorFrm.indicatorResponsible.choices = usrList
+
 
         kwargs['contentTitle'] = 'Create new Performance Indicator'
         return render_template('performance/indicatorForm.html', indicatorForm=indicatorFrm, **kwargs)

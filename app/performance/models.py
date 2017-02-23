@@ -12,6 +12,7 @@ class indicator(db.Model):
     dataSource = db.Column(db.String())
 
     tenant_uuid = db.Column(db.String())
+
     measurementFrequency_id = db.Column(db.Integer, db.ForeignKey('measurementFrequency.id'))
     UOM_id = db.Column(db.Integer, db.ForeignKey('UOM.id'))
     processType_id = db.Column(db.Integer, db.ForeignKey('processType.id'))
