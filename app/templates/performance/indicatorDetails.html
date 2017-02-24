@@ -17,14 +17,14 @@
         <div class="row">
             <div class="col-md-6 col-sm-6 col-xs-12">
                 {{ indicatorForm.indicatorTitle.label }}
-                {{ indicatorForm.indicatorTitle(class_='form-control ')}}
+                {{ indicatorForm.indicatorTitle(readonly=true, class_='form-control ')}}
                 {% for error in indicatorForm.indicatorTitle.errors %}
                     <p>{{error}}</p>
                 {% endfor %}
             </div>
             <div class="col-md-6 col-sm-6 col-xs-12">
                 {{ indicatorForm.indicatorDesc.label }}
-                {{ indicatorForm.indicatorDesc(class_='form-control ')}}
+                {{ indicatorForm.indicatorDesc(readonly=true, class_='form-control ')}}
                 {% for error in indicatorForm.indicatorDesc.errors %}
                     <p>{{error}}</p>
                 {% endfor %}
@@ -35,14 +35,14 @@
             <div class="col-md-6 col-sm-6 col-xs-12">
 
                 {{ indicatorForm.indicatorDataSource.label }}
-                {{ indicatorForm.indicatorDataSource(class_='form-control ')}}
+                {{ indicatorForm.indicatorDataSource(readonly=true, class_='form-control ')}}
                 {% for error in indicatorForm.indicatorDataSource.errors %}
                     <p>{{error}}</p>
                 {% endfor %}
             </div>
             <div class="col-md-6 col-sm-6 col-xs-12">
                 {{ indicatorForm.indicatorMeasurementFrequency.label }}
-                {{ indicatorForm.indicatorMeasurementFrequency(class_='form-control ')}}
+                {{ indicatorForm.indicatorMeasurementFrequency(readonly=true, class_='form-control ')}}
                 {% for error in indicatorForm.indicatorMeasurementFrequency.errors %}
                     <p>{{error}}</p>
                 {% endfor %}
@@ -52,14 +52,14 @@
         <div class="row">
             <div class="col-md-6 col-sm-6 col-xs-12">
                 {{ indicatorForm.indicatorUOM.label }}
-                {{ indicatorForm.indicatorUOM(class_='form-control ')}}
+                {{ indicatorForm.indicatorUOM(readonly=true, class_='form-control ')}}
                 {% for error in indicatorForm.indicatorUOM.errors %}
                     <p>{{error}}</p>
                 {% endfor %}
             </div>
             <div class="col-md-6 col-sm-6 col-xs-12">
                 {{ indicatorForm.indicatorProcessType.label }}
-                {{ indicatorForm.indicatorProcessType(class_='form-control ')}}
+                {{ indicatorForm.indicatorProcessType(readonly=true, class_='form-control ')}}
                 {% for error in indicatorForm.indicatorProcessType.errors %}
                     <p>{{error}}</p>
                 {% endfor %}
@@ -69,14 +69,14 @@
         <div class="row">
             <div class="col-md-6 col-sm-6 col-xs-12">
                 {{ indicatorForm.indicatorIndicatorType.label }}
-                {{ indicatorForm.indicatorIndicatorType(class_='form-control ')}}
+                {{ indicatorForm.indicatorIndicatorType(readonly=true, class_='form-control ')}}
                 {% for error in indicatorForm.indicatorIndicatorType.errors %}
                     <p>{{error}}</p>
                 {% endfor %}
             </div>
             <div class="col-md-6 col-sm-6 col-xs-12">
                 {{ indicatorForm.indicatorGoodPerformance.label }}
-                {{ indicatorForm.indicatorGoodPerformance(class_='form-control ')}}
+                {{ indicatorForm.indicatorGoodPerformance(readonly=true, class_='form-control ')}}
                 {% for error in indicatorForm.indicatorGoodPerformance.errors %}
                     <p>{{error}}</p>
                 {% endfor %}
@@ -86,14 +86,14 @@
         <div class="row">
             <div class="col-md-6 col-sm-6 col-xs-12">
                 {{ indicatorForm.indicatorOwner.label }}
-                {{ indicatorForm.indicatorOwner(class_='form-control ')}}
+                {{ indicatorForm.indicatorOwner(readonly=true, class_='form-control ')}}
                 {% for error in indicatorForm.indicatorOwner.errors %}
                     <p>{{error}}</p>
                 {% endfor %}
                 </div>
             <div class="col-md-6 col-sm-6 col-xs-12">
                 {{ indicatorForm.indicatorResponsible.label }}
-                {{ indicatorForm.indicatorResponsible(class_='form-control ')}}
+                {{ indicatorForm.indicatorResponsible(readonly=true, class_='form-control ')}}
                 {% for error in indicatorForm.indicatorResponsible.errors %}
                     <p>{{error}}</p>
                 {% endfor %}
@@ -104,8 +104,7 @@
             <div class="col-lg-12">
                 <div class="input-group" style="float:right;">
                     {{ indicatorForm.csrf_token }}
-                    <a href="{{url_for('perfBP.indicatorListView')}}">Cancel</a> &nbsp
-                    {{indicatorForm.indicatorSubmit(class_='btn btn-primary')}}
+                    <a href="{{url_for('perfBP.indicatorListView')}}">Close</a>
                 </div>
             </div>
         </div>

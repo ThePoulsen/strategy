@@ -35,9 +35,9 @@ actionStat = ['Planned but not started','Late','In progress','Complete','Cancell
 
 stratLevel = ['Level 0','Level 1','Level 2','Level 3']
 
-respObject = ['Mission','Vision','Objective','Strategy','Project','Task','Task Initiator']
+respObject = ['Mission','Vision','Objective','Strategy','Project','Task','Task Initiator','Indicator']
 
-respType = ['Owner','Support','Resources','Expertise']
+respType = ['Owner','Driver','Responsible','Support','Resources','Expertise']
 
 uom = ['Percent','Dollars','Euros','Index','Milestone','Days','Hours','Minutes']
 
@@ -83,7 +83,7 @@ def createMasterData():
 
     for unit in uom:
         uo = [r.title for r in UOM.query.all()]
-        if not st in uo:
+        if not unit in uo:
             db.session.add(UOM(title=unit))
 
     for obj in respObject:

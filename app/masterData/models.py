@@ -98,11 +98,11 @@ class responsibilityObject(db.Model):
 
 class responsibilityAssignment(db.Model):
     __tablename__ = 'responsibilityAssignment'
-    __table_args__ = (db.UniqueConstraint('responsibilityObject_id', 'reference_id', 'responsibilityType_id', 'user_uuid'),)
+    __table_args__ = (db.UniqueConstraint('responsibilityObject_id', 'reference_uuid', 'responsibilityType_id', 'user_uuid'),)
 
     id = db.Column(db.Integer, primary_key=True)
     responsibilityObject_id = db.Column(db.Integer, db.ForeignKey('region.id'))
-    reference_id = db.Column(db.Integer)
+    reference_uuid = db.Column(db.String)
     responsibilityType_id = db.Column(db.Integer, db.ForeignKey('responsibilityType.id'))
     user_uuid = db.Column(db.String)
 

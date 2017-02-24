@@ -42,13 +42,6 @@ textarea.form-control {
     background: #2A3F54;
 }
 
-/*
-table {
-    table-layout:fixed;
-    width:100%;
-}
-*/
-
 .table>tbody>tr>th {
     border-top: 0px;
 }
