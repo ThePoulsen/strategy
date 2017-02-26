@@ -20,7 +20,7 @@ def indicatorListView(function=None, uuid=None):
               'contentTitle':'Current performance indicators',
               'tableColumns':['Indicator','Description' ,'Target', 'Actual', 'Deviation', 'Development']}
 
-    editRoles = [u'Superuser', u'Administrator']
+    editRoles = [u'Superuser']
 
 
     if not any(i in editRoles for i in getRoles()):
@@ -49,10 +49,23 @@ def indicatorListView(function=None, uuid=None):
 @requiredRole([u'User', u'Superuser', u'Administrator'])
 def indicatorDetailsView(uuid=None):
     ten = getCurrentTenant()
+    respTypeOwner = responsibilityType.query.filter_by(title='Owner').first()
+    respTypeResponsible = responsibilityType.query.filter_by(title='Responsible').first()
+    respObj = responsibilityObject.query.filter_by(title='Indicator').first()
     kwargs = {'contentTitle': 'Indicator details'}
     if ten:
+
         indFrm = indicatorForm()
         ind = indicator.query.filter_by(uuid=uuid, tenant_uuid=unicode(ten['uuid'])).first()
+
+        owner = responsibilityAssignment.query.filter_by(responsibilityObject_id = respObj.id,
+                                                    reference_uuid = unicode(ind.uuid),
+                                                    responsibilityType_id = respTypeOwner.id).first()
+
+        resp = responsibilityAssignment.query.filter_by(responsibilityObject_id = respObj.id,
+                                                    reference_uuid = unicode(ind.uuid),
+                                                    responsibilityType_id = respTypeResponsible.id).all()
+
         indFrm = indicatorForm(indicatorTitle = ind.title,
                                indicatorDesc = ind.desc,
                                indicatorDataSource = ind.dataSource,
@@ -60,7 +73,17 @@ def indicatorDetailsView(uuid=None):
                                indicatorUOM = ind.UOM_id,
                                indicatorProcessType = ind.processType_id,
                                indicatorIndicatorType = ind.indicatorType_id,
-                               indicatorGoodPerformance = ind.goodPerformance_id)
+                               indicatorGoodPerformance = ind.goodPerformance_id,
+                               indicatorOwner = owner.user_uuid if owner else None,
+                               indicatorResponsible = [r.user_uuid for r in resp] if resp else None)
+        indFrm.indicatorMeasurementFrequency.choices = frequencyList()
+        indFrm.indicatorUOM.choices = uomList()
+        indFrm.indicatorProcessType.choices = processTypeList()
+        indFrm.indicatorIndicatorType.choices = indicatorTypeList()
+        indFrm.indicatorGoodPerformance.choices = goodPerformanceList()
+        indFrm.indicatorOwner.choices = userList()
+        indFrm.indicatorResponsible.choices = userList()
+
         return render_template('performance/indicatorDetails.html', indicatorForm=indFrm, **kwargs)
 
     else:
@@ -75,7 +98,8 @@ def indicatorDetailsView(uuid=None):
 def indicatorManagementView(uuid=None, function=None):
     kwargs = {}
     ten = getCurrentTenant()
-    respType = responsibilityType.query.filter_by(title='Owner').first()
+    respTypeOwner = responsibilityType.query.filter_by(title='Owner').first()
+    respTypeResponsible = responsibilityType.query.filter_by(title='Responsible').first()
     respObj = responsibilityObject.query.filter_by(title='Indicator').first()
 
     if ten:
@@ -113,12 +137,7 @@ def indicatorManagementView(uuid=None, function=None):
                     else:
                         indicatorGoodPerformance = int(indFrm.indicatorGoodPerformance.data)
 
-                    owner = indFrm.indicatorOwner.data
-                    resp = responsibilityAssignment(responsibilityObject_id = respObj.id,
-                                                    reference_uuid = unicode(owner),
-                                                    responsibilityType_id = respType.id,
-                                                    user_uuid = unicode(owner))
-                    db.session.add(resp)
+                    indicatorOwner = indFrm.indicatorOwner.data
 
                     ind = indicator(uuid = unicode(UUID.uuid4()),
                                     title = unicode(indFrm.indicatorTitle.data),
@@ -130,6 +149,21 @@ def indicatorManagementView(uuid=None, function=None):
                                     indicatorType_id = indicatorIndicatorType,
                                     goodPerformance_id = indicatorGoodPerformance,
                                     tenant_uuid = unicode(ten['uuid']))
+
+                    owner = responsibilityAssignment(responsibilityObject_id = respObj.id,
+                                                    reference_uuid = unicode(ind.uuid),
+                                                    responsibilityType_id = respTypeOwner.id,
+                                                    user_uuid = unicode(indicatorOwner))
+                    db.session.add(owner)
+
+                    responsible = indFrm.indicatorResponsible.data
+                    for r in responsible:
+                        resp = responsibilityAssignment(responsibilityObject_id = respObj.id,
+                                            reference_uuid = unicode(ind.uuid),
+                                            responsibilityType_id = respTypeResponsible.id,
+                                            user_uuid = r)
+                        db.session.add(resp)
+
                     db.session.add(ind)
                     db.session.commit()
                     successMessage('Indicator has been added')
@@ -146,6 +180,14 @@ def indicatorManagementView(uuid=None, function=None):
             kwargs['contentTitle'] = 'Modify existing Performance Indicator'
             ind = indicator.query.filter_by(uuid=uuid, tenant_uuid=unicode(ten['uuid'])).first()
 
+            owner = responsibilityAssignment.query.filter_by(responsibilityObject_id = respObj.id,
+                                                    reference_uuid = unicode(ind.uuid),
+                                                    responsibilityType_id = respTypeOwner.id).first()
+
+            resp = responsibilityAssignment.query.filter_by(responsibilityObject_id = respObj.id,
+                                                    reference_uuid = unicode(ind.uuid),
+                                                    responsibilityType_id = respTypeResponsible.id).all()
+
             indFrm = indicatorForm(indicatorTitle = ind.title,
                                    indicatorDesc = ind.desc,
                                    indicatorDataSource = ind.dataSource,
@@ -153,7 +195,9 @@ def indicatorManagementView(uuid=None, function=None):
                                    indicatorUOM = ind.UOM_id,
                                    indicatorProcessType = ind.processType_id,
                                    indicatorIndicatorType = ind.indicatorType_id,
-                                   indicatorGoodPerformance = ind.goodPerformance_id)
+                                   indicatorGoodPerformance = ind.goodPerformance_id,
+                                   indicatorOwner = owner.user_uuid if owner else None,
+                                   indicatorResponsible = [r.user_uuid for r in resp] if resp else None)
 
             indFrm.indicatorMeasurementFrequency.choices = frequencyList()
             indFrm.indicatorUOM.choices = uomList()
@@ -189,8 +233,36 @@ def indicatorManagementView(uuid=None, function=None):
                     if not ind.title == indFrm.indicatorTitle.data:
                         if indicator.query.filter_by(title=indFrm.indicatorTitle.data, tenant_uuid=unicode(ten['uuid'])).first():
                             errorMessage('An indicator with this name already exists')
+
                     else:
-                        ind.uuid = unicode(UUID.uuid4())
+                        responsible = indFrm.indicatorResponsible.data
+                        resp = responsibilityAssignment.query.filter_by(responsibilityObject_id = respObj.id,
+                                                reference_uuid = unicode(ind.uuid),
+                                                responsibilityType_id = respTypeResponsible.id).all()
+                        for r in resp:
+                            db.session.delete(r)
+                            db.session.commit()
+
+                        for r in responsible:
+                            resp = responsibilityAssignment(responsibilityObject_id = respObj.id,
+                                                reference_uuid = unicode(ind.uuid),
+                                                responsibilityType_id = respTypeResponsible.id,
+                                                user_uuid = r)
+                            db.session.add(resp)
+
+                        newOwner = indFrm.indicatorOwner.data
+                        if not newOwner:
+                            db.session.delete(owner)
+
+                        elif not owner:
+                            owner = responsibilityAssignment(responsibilityObject_id = respObj.id,
+                                                    reference_uuid = unicode(ind.uuid),
+                                                    responsibilityType_id = respTypeOwner.id,
+                                                    user_uuid = unicode(newOwner))
+                            db.session.add(owner)
+                        else:
+                            owner.user_uuid = newOwner
+
                         ind.title = unicode(indFrm.indicatorTitle.data)
                         ind.desc = unicode(indFrm.indicatorDesc.data)
                         ind.dataSource = unicode(indFrm.indicatorDataSource.data)
@@ -218,8 +290,6 @@ def indicatorManagementView(uuid=None, function=None):
             db.session.commit()
             successMessage('The indicator has been deleted')
             return redirect(url_for('perfBP.indicatorListView'))
-
-
     else:
         errorMessage('Cannot verify your account, please log in again')
         return redirect(url_for('indexView'))
