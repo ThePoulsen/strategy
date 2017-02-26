@@ -6,3 +6,4 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from app.admin.services import requiredRole, loginRequired
 
 mdBP = Blueprint('mdBP', __name__, template_folder='templates')
+
