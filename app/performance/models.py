@@ -26,7 +26,8 @@ class indicatorTarget(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     uuid = db.Column(db.String(), unique=True)
 
-    value = db.Column(db.Float)
+    fromTarget = db.Column(db.Float)
+    toTarget = db.Column(db.Float)
 
     tenant_uuid = db.Column(db.String())
     indicator_uuid = db.Column(db.String, db.ForeignKey('indicator.uuid'))

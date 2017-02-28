@@ -47,7 +47,7 @@ processTyp = ['Safety','Quality','Delivery','Cost','Productivity']
 
 indicatorTyp = ['KPI','PPI','PI','KRI']
 
-goodPerf = ['Above target', 'Below target', 'On target']
+goodPerf = ['Above target', 'Below target', 'On target', 'Range']
 
 calData = csv.reader(open('calendar.csv','r'), delimiter=';')
 next(calData, None)
