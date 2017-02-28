@@ -3,14 +3,16 @@
 from app import db
 from flask import Blueprint, render_template, request, redirect, url_for, session, g
 from app.admin.services import requiredRole, loginRequired, errorMessage, successMessage, getRoles
-from models import indicator
+from models import indicator, indicatorTarget
 from app.crud.tenantCRUD import getCurrentTenant
 from forms import indicatorForm, selectIndicatorForm, newIndicatorTarget
 from app.masterData.services import frequencyList, uomList, processTypeList, indicatorTypeList, goodPerformanceList, userList
-from services import indicatorList
-from app.masterData.models import responsibilityType, responsibilityObject, responsibilityAssignment
+from services import indicatorList, indicatorDetails
+from app.masterData.models import responsibilityType, responsibilityObject, responsibilityAssignment, calendar
 import uuid as UUID
 import flask_sijax
+from datetime import date, timedelta
+from app.sijax.handler import SijaxHandler
 
 perfBP = Blueprint('perfBP', __name__, template_folder='templates')
 
@@ -20,6 +22,7 @@ perfBP = Blueprint('perfBP', __name__, template_folder='templates')
 def indicatorListView(function=None, uuid=None):
     kwargs = {'title':'Performance indicators',
               'contentTitle':'Current performance indicators',
+              'targetButtons':True,
               'tableColumns':['Indicator','Description' ,'Target', 'Actual', 'Deviation', 'Development']}
 
     editRoles = [u'Superuser', 'Administrator']
@@ -211,6 +214,7 @@ def indicatorManagementView(uuid=None, function=None):
 
             if indFrm.validate_on_submit():
                 try:
+
                     if indFrm.indicatorMeasurementFrequency.data == '':
                         indicatorMeasurementFrequency = None
                     else:
@@ -232,51 +236,46 @@ def indicatorManagementView(uuid=None, function=None):
                     else:
                         indicatorGoodPerformance = int(indFrm.indicatorGoodPerformance.data)
 
-                    if not ind.title == indFrm.indicatorTitle.data:
-                        if indicator.query.filter_by(title=indFrm.indicatorTitle.data, tenant_uuid=unicode(ten['uuid'])).first():
-                            errorMessage('An indicator with this name already exists')
-
-                    else:
-                        responsible = indFrm.indicatorResponsible.data
-                        resp = responsibilityAssignment.query.filter_by(responsibilityObject_id = respObj.id,
-                                                reference_uuid = unicode(ind.uuid),
-                                                responsibilityType_id = respTypeResponsible.id).all()
-                        for r in resp:
-                            db.session.delete(r)
-                            db.session.commit()
-
-                        for r in responsible:
-                            resp = responsibilityAssignment(responsibilityObject_id = respObj.id,
-                                                reference_uuid = unicode(ind.uuid),
-                                                responsibilityType_id = respTypeResponsible.id,
-                                                user_uuid = r)
-                            db.session.add(resp)
-
-                        newOwner = indFrm.indicatorOwner.data
-                        if not newOwner:
-                            db.session.delete(owner)
-
-                        elif not owner:
-                            owner = responsibilityAssignment(responsibilityObject_id = respObj.id,
-                                                    reference_uuid = unicode(ind.uuid),
-                                                    responsibilityType_id = respTypeOwner.id,
-                                                    user_uuid = unicode(newOwner))
-                            db.session.add(owner)
-                        else:
-                            owner.user_uuid = newOwner
-
-                        ind.title = unicode(indFrm.indicatorTitle.data)
-                        ind.desc = unicode(indFrm.indicatorDesc.data)
-                        ind.dataSource = unicode(indFrm.indicatorDataSource.data)
-                        ind.measurementFrequency_id = indicatorMeasurementFrequency
-                        ind.UOM_id = indicatorUOM
-                        ind.processType_id = indicatorProcessType
-                        ind.indicatorType_id = indicatorIndicatorType
-                        ind.goodPerformance_id = indicatorGoodPerformance
-
+                    responsible = indFrm.indicatorResponsible.data
+                    resp = responsibilityAssignment.query.filter_by(responsibilityObject_id = respObj.id,
+                                            reference_uuid = unicode(ind.uuid),
+                                            responsibilityType_id = respTypeResponsible.id).all()
+                    for r in resp:
+                        db.session.delete(r)
                         db.session.commit()
-                        successMessage('Indicator has been modified')
-                        return redirect(url_for('perfBP.indicatorListView'))
+
+                    for r in responsible:
+                        resp = responsibilityAssignment(responsibilityObject_id = respObj.id,
+                                            reference_uuid = unicode(ind.uuid),
+                                            responsibilityType_id = respTypeResponsible.id,
+                                            user_uuid = r)
+                        db.session.add(resp)
+
+                    newOwner = indFrm.indicatorOwner.data
+                    if not newOwner:
+                        db.session.delete(owner)
+
+                    elif not owner:
+                        owner = responsibilityAssignment(responsibilityObject_id = respObj.id,
+                                                reference_uuid = unicode(ind.uuid),
+                                                responsibilityType_id = respTypeOwner.id,
+                                                user_uuid = unicode(newOwner))
+                        db.session.add(owner)
+                    else:
+                        owner.user_uuid = newOwner
+
+                    ind.title = unicode(indFrm.indicatorTitle.data)
+                    ind.desc = unicode(indFrm.indicatorDesc.data)
+                    ind.dataSource = unicode(indFrm.indicatorDataSource.data)
+                    ind.measurementFrequency_id = indicatorMeasurementFrequency
+                    ind.UOM_id = indicatorUOM
+                    ind.processType_id = indicatorProcessType
+                    ind.indicatorType_id = indicatorIndicatorType
+                    ind.goodPerformance_id = indicatorGoodPerformance
+
+                    db.session.commit()
+                    successMessage('Indicator has been modified')
+                    return redirect(url_for('perfBP.indicatorListView'))
 
                 except Exception as E:
                     if 'duplicate key value violates unique constraint' in unicode(E):
@@ -296,14 +295,37 @@ def indicatorManagementView(uuid=None, function=None):
         errorMessage('Cannot verify your account, please log in again')
         return redirect(url_for('indexView'))
 
-@perfBP.route('/target/', methods=['GET', 'POST'])
+@perfBP.route('/target/<string:uuid>', methods=['GET', 'POST'])
 @loginRequired
 @requiredRole([u'Superuser', u'Administrator'])
-def indicatorTargetView(uuid=None, function=None):
+def indicatorTargetView(uuid):
     kwargs = {'title':'Indicator Targets',
-              'contentTitle':''}
+              'contentTitle':'',
+              'indicator_uuid':uuid}
+
     ten = getCurrentTenant()
     if ten:
+        try:
+            ind = indicator.query.filter_by(tenant_uuid=unicode(ten['uuid']), uuid=uuid).first()
+        except:
+            errorMessage('Indicator does not exist, or you do not have access to view target details')
+            return redirect(url_for('perfBP.indicatorListView'))
+
+        indDetails = indicatorDetails(uuid)
+        targets = indicatorTarget.query.filter_by(tenant_uuid=unicode(ten['uuid']), indicator_uuid = uuid).all()
+
+        tableData = [[r.uuid, calendar.query.get(r.validFrom).date, calendar.query.get(r.validTo).date,r.fromTarget,r.toTarget] for r in targets]
+        kwargs['tableData'] = tableData
+
+        # Build list of dates already assigned targets
+        datesDisabled = []
+        for t in targets:
+            d1 = calendar.query.get(t.validFrom).date
+            d2 = calendar.query.get(t.validTo).date
+            dd = [d1 + timedelta(days=x) for x in range((d2-d1).days + 1)]
+            for d in dd:
+                datesDisabled.append('{}/{}/{}'.format(d.day, d.month, d.year))
+        kwargs['datesDisabled'] = datesDisabled
 
         if g.sijax.is_sijax_request:
             g.sijax.register_object(SijaxHandler)
@@ -314,9 +336,15 @@ def indicatorTargetView(uuid=None, function=None):
         targetForm = newIndicatorTarget()
 
         if targetForm.validate_on_submit():
-            pass
+            print 'hej'
+            successMessage('target has been added to the indicator')
+            return redirect(url_for('perfBP.indicatorTargetView', uuid=uuid))
 
-        return render_template('performance/indicatorTargetView.html', indicators=indicators, targetForm=targetForm, **kwargs)
+        return render_template('performance/indicatorTargetView.html',
+                                    indicators=indicators,
+                                    targetForm=targetForm,
+                                    indDetails=indDetails,
+                                    **kwargs)
     else:
         errorMessage('Cannot verify your account, please log in again')
         return redirect(url_for('indexView'))

@@ -5,7 +5,7 @@
 {% block title %}{{title|safe}}{% endblock %}
 {% block content %}
 
-<div class= style="max-width:700px;">
+<div style="max-width:700px;">
 <div class="x_panel">
 <div class="x_title">
 <h2>{{contentTitle|safe}}</h2>
@@ -102,12 +102,10 @@
         </div>
         <br>
         <div class="row">
-            <div class="col-lg-12">
-                <div class="input-group" style="float:right;">
-                    {{ indicatorForm.csrf_token }}
-                    <a href="{{url_for('perfBP.indicatorListView')}}">Cancel</a> &nbsp
-                    {{indicatorForm.indicatorSubmit(class_='btn btn-primary')}}
-                </div>
+            <div class="input-group" style="float:right;">
+                {{ indicatorForm.csrf_token }}
+                <a href="{{url_for('perfBP.indicatorListView')}}">Cancel</a> &nbsp
+                {{indicatorForm.indicatorSubmit(class_='btn btn-primary')}}
             </div>
         </div>
     </form>

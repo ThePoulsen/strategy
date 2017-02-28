@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, StringField, SelectField, TextAreaField, SelectMultipleField, validators, SubmitField, DateField
+from wtforms import IntegerField, FloatField, StringField, SelectField, TextAreaField, SelectMultipleField, validators, SubmitField, DateField
 from wtforms.validators import InputRequired, Email
 from app.admin.services import  select2MultipleWidget, select2Widget
 
@@ -25,5 +25,5 @@ class selectIndicatorForm(FlaskForm):
 class newIndicatorTarget(FlaskForm):
     targetValidFrom = DateField('Valid From', format="%d/%m/%Y", validators=[InputRequired('Please select a date')])
     targetValidTo = DateField('Valid To', format="%d/%m/%Y", validators=[InputRequired('Please select a date')])
-    targetValue = IntegerField('Target Value', validators=[InputRequired('Please enter a value')])
-    targetSubmit = SubmitField('Add target')
+    valueFrom = FloatField('Value from', validators=[InputRequired('Please enter a value')])
+    valueTo = FloatField('Value to', validators=[InputRequired('Please enter a value')])

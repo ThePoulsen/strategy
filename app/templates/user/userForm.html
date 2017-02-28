@@ -72,7 +72,7 @@
 
             <!-- Modal Body -->
             <div class="modal-body">
-                <form method="post" name="newGroupFrom" id="newGroupFrom">
+                <form method="post" name="newGroupForm" id="newGroupFrom">
                 {{ grpForm.groupName.label }}
                 {{ grpForm.groupName(class_='form-control')}}
                 <p id="groupNameValidator"></p>
@@ -103,7 +103,6 @@
 <!--Form error handler-->
 <script type="text/javascript">
     var formErrors = {% if grpForm.errors %}true{% else %}false{% endif %};
-
     $(document).ready(function() {
         if (formErrors) {
             $('.modal').modal('show');
@@ -114,9 +113,9 @@
 <!--Form sijax submission-->
 <script type="text/javascript">
 $(function() {
-    $('#newGroupFrom').bind('submit', function() {
+    $('#newGroupForm').bind('submit', function() {
         //Get form values
-        var values = Sijax.getFormValues('#newGroupFrom');
+        var values = Sijax.getFormValues('#newGroupForm');
         //Send form values to sijax handler
         Sijax.request('userFormGroupModal', [values]);
         //Prevent the form from being submitted

@@ -13,6 +13,11 @@ class SijaxHandler(object):
     """
 
     @staticmethod
+    def cancelModal(obj_response, form, modal):
+        obj_response.script("$('#{}')[0].reset();".format(form))
+        obj_response.script("$('#{}').modal('hide')".format(modal))
+
+    @staticmethod
     def getContactDetails(obj_response, uuid):
         usr = getUser(uuid)['user']
         obj_response.attr('#email', 'value', usr['email'])
@@ -59,7 +64,7 @@ class SijaxHandler(object):
                 groupID = grp['uuid']
                 for r in required:
                     obj_response.html('#'+r+'Validator', '')
-                obj_response.script("$('#newGroupFrom')[0].reset();")
+                obj_response.script("$('#newGroupForm')[0].reset();")
                 obj_response.script("$('#newGroupModal').modal('hide')")
                 obj_response.script("$('#userGroups').append($('<option></option>').attr('value', '{}').attr('selected', 'true').text('{}'));".format(groupID,groupName))
                 obj_response.html('#flashDiv', sijaxSuccess('The group has been added'))

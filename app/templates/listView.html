@@ -16,14 +16,20 @@
     <thead>
         <tr>
             {% for c in tableColumns %}<th>{{ c|safe }}</th>{% endfor %}
+            {% if targetButtons %}
+            <th class="tableButtons"></th>
+            {% endif %}
             {% if not withoutDeleteEntry %}
             <th class="tableButtons"></th>
             {% endif %}
+            {% if not withoutNewEntry %}
             <th class="tableButtons">
-                {% if not withoutNewEntry %}
-                <a href="{{ request.path }}/new"><i class="fa fa-plus"></i></a>
-                {% endif %}
+                <a href="{{ request.path }}/new">
+                    <i class="fa fa-plus"></i>
+                </a>
             </th>
+            {% endif %}
+
         </tr>
     </thead>
     <tbody>
@@ -45,6 +51,11 @@
                 <a href="#" onclick="document.forms['editForm{{row[0]}}'].submit(); return false;"><i class="fa fa-search"></i></a>
                 {% endif %}
             </td>
+            {% if targetButtons %}
+            <td class="tableButtons">
+                <a href="{{url_for('perfBP.indicatorTargetView', uuid=row[0])}}"><i class="fa fa-bullseye"></i></a>
+            </td>
+            {% endif %}
             {% if not withoutDeleteEntry %}
             <td class="tableButtons">
                 <form name="deleteForm{{row[0]}}" action="{{ request.path }}/delete/{{row[0]}}" class="deleteForm" method="post">

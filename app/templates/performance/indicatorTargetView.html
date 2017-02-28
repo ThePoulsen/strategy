@@ -7,16 +7,61 @@
 {% block content %}
 <div style="max-width:900px;">
     <div class="row">
-        <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="col-md-8 col-sm-8 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Select indicator</h2>
+                    <h2>Indicator Details</h2>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
-                    <form>
-                    {{ indicators.indicator(class_='form-control ')}}
-                    </form>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <p>
+                            <label>Indicator:</label>&nbsp
+                            {{indDetails.title|safe}}
+                        </p>
+                        <p>
+                            <label>Data Source:</label>&nbsp
+                            {{indDetails.dataSource|safe}}
+                        </p>
+                        <p>
+                            <label>Unit of measure:</label>&nbsp
+                            {{indDetails.UOM|safe}}
+                        </p>
+                        <p>
+                            <label>Indicator type:</label>&nbsp
+                            {{indDetails.indicatorType|safe}}
+                        </p>
+                        <p>
+                            <label>Indicator owner:</label>&nbsp
+                            {{indDetails.owner|safe}}
+                        </p>
+
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-xs-12">
+                        <p>
+                            <label>Indicator description:</label>&nbsp
+                            {{indDetails.desc|safe}}
+                        </p>
+                        <p>
+                            <label>Measurement frequency:</label>&nbsp
+                            {{indDetails.measurementFrequency|safe}}
+                        </p>
+                        <p>
+                            <label>Process type:</label>&nbsp
+                            {{indDetails.processType|safe}}
+                        </p>
+                        <p>
+                            <label>Good performance:</label>&nbsp
+                            {{indDetails.goodPerformance|safe}}
+                        </p>
+                        <p>
+                            <label>Indicator responsible:</label><br>
+                            {% for r in indDetails.responsible %}
+                            {{loop.index}}:&nbsp;{{r}}<br>
+                            {% endfor %}
+                        </p>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -34,7 +79,8 @@
                             <tr>
                                 <th>Valid from</th>
                                 <th>Valid to</th>
-                                <th>Valid value</th>
+                                <th>Target value from</th>
+                                <th>Target value to</th>
                                 <th class="tableButtons">
                                     <a href="#" data-toggle="modal" data-target="#newTargetModal"><i class="fa fa-plus"></i></a>
                                 </th>
@@ -66,7 +112,7 @@
 
 <!-- Modal -->
 <div class="modal" id="newTargetModal" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="max-width:400px;">
         <div class="modal-content">
             <!-- Modal Header -->
             <div class="modal-header">
@@ -82,48 +128,55 @@
 
             <!-- Modal Body -->
             <div class="modal-body">
-                <form action="{{url_for('perfBP.indicatorTargetView')}}" method="post" id="targetForm">
-                    <div class="input-daterange input-group" id="datepicker">
+                <form action="{{url_for('perfBP.indicatorTargetView', uuid=indicator_uuid)}}" method="post" id="targetForm">
+                    <div class="row">
+                        <div class="input-daterange input-group" id="datepicker">
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label>Target valid from</label><br>
+                                {{ targetForm.targetValidFrom(placeholder="dd/mm/yyyy", class_='form-control')}}
+                                {% for error in targetForm.targetValidFrom.errors %}
+                                <p>{{error}}</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+
+                                <label>Target valid to</label>
+                                {{ targetForm.targetValidTo(placeholder="dd/mm/yyyy", class_='form-control')}}
+                                {% for error in targetForm.targetValidTo.errors %}
+                                <p>{{error}}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-4 col-sm-4 col-xs-4">
-                            <label>Target valid from</label><br>
-                            {{ targetForm.targetValidFrom(placeholder="dd/mm/yyyy", class_='form-control')}}
-                            {% for error in targetForm.targetValidFrom.errors %}
-                            <p>{{error}}</p>
+                            {{ targetForm.valueFrom.label }}
+                            {{ targetForm.valueFrom(class_='form-control')}}
+                            {% for error in targetForm.valueFrom.errors %}
+                                <p>{{error}}</p>
                             {% endfor %}
                         </div>
                         <div class="col-md-4 col-sm-4 col-xs-4">
-
-                            <label>Target valid to</label>
-                            {{ targetForm.targetValidTo(placeholder="dd/mm/yyyy", class_='form-control')}}
-                            {% for error in targetForm.targetValidTo.errors %}
-                            <p>{{error}}</p>
+                            {{ targetForm.valueTo.label }}
+                            {{ targetForm.valueTo(class_='form-control')}}
+                            {% for error in targetForm.valueTo.errors %}
+                                <p>{{error}}</p>
                             {% endfor %}
                         </div>
                     </div>
-                    <div class="col-md-4 col-sm-4 col-xs-4">
-                        {{ targetForm.targetValue.label }}
-                        {{ targetForm.targetValue(class_='form-control')}}
-                        {% for error in targetForm.targetValue.errors %}
-                            <p>{{error}}</p>
-                        {% endfor %}
-                    </div>
-                    <div class="col-md-4 col-sm-4 col-xs-4">
-                        {{ targetForm.targetValue.label }}
-                        {{ targetForm.targetValue(class_='form-control')}}
-                        {% for error in targetForm.targetValue.errors %}
-                            <p>{{error}}</p>
-                        {% endfor %}
-                    </div>
-
                     <br>
-                    <div class="input-group" style="float:right;">
-                        {{ targetForm.csrf_token }}
-                        {{ targetForm.targetSubmit(class_='btn btn-primary')}}
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="input-group" style="float:right;">
+                                {{ targetForm.csrf_token }}
+                                <button id="cancelModalButton" type="button" class="btn btn-link">cancel</button> &nbsp
+                                <input type="submit" class="btn btn-primary" value="OK">
+                            </div>
+                        </div>
                     </div>
-                    <br><br>
+
                 </form>
             </div>
-<!--            <div class="modal-footer"></div>-->
         </div>
     </div>
 </div>
@@ -133,6 +186,29 @@
 {{ super() }}
 <script type="text/javascript" src="/static/js/sijax/sijax.js"></script>
 <script type="text/javascript">{{ g.sijax.get_js()|safe }}</script>
+
+<!--Form error handler-->
+<script type="text/javascript">
+    var formErrors = {% if targetForm.errors %}true{% else %}false{% endif %};
+    $(document).ready(function() {
+        if (formErrors) {
+            $('.modal').modal('show');
+        }
+    });
+</script>
+
+<!--Form sijax cancel-->
+<script type="text/javascript">
+$(function() {
+
+    $('#cancelModalButton').bind('click', function() {
+        Sijax.request('cancelModal', ['targetForm','newTargetModal']);
+        //Prevent the form from being submitted
+        return false;
+    });
+});
+</script>
+
 <script src="{{url_for('static', filename='js/datepicker.min.js')}}"></script>
 <script src="{{url_for('static', filename='js/datepicker.en-GB.min.js')}}"></script>
 <script type="text/javascript">
@@ -142,6 +218,7 @@
         language: "en-GB",
         toggleActive: true,
         autoclose: true,
+        datesDisabled: {{datesDisabled|safe}},
     });
 
 </script>
