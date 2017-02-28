@@ -5,10 +5,12 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from app.admin.services import requiredRole, loginRequired, errorMessage, successMessage, getRoles
 from models import indicator
 from app.crud.tenantCRUD import getCurrentTenant
-from forms import indicatorForm
+from forms import indicatorForm, selectIndicatorForm, newIndicatorTarget
 from app.masterData.services import frequencyList, uomList, processTypeList, indicatorTypeList, goodPerformanceList, userList
+from services import indicatorList
 from app.masterData.models import responsibilityType, responsibilityObject, responsibilityAssignment
 import uuid as UUID
+import flask_sijax
 
 perfBP = Blueprint('perfBP', __name__, template_folder='templates')
 
@@ -20,7 +22,7 @@ def indicatorListView(function=None, uuid=None):
               'contentTitle':'Current performance indicators',
               'tableColumns':['Indicator','Description' ,'Target', 'Actual', 'Deviation', 'Development']}
 
-    editRoles = [u'Superuser']
+    editRoles = [u'Superuser', 'Administrator']
 
 
     if not any(i in editRoles for i in getRoles()):
@@ -290,6 +292,31 @@ def indicatorManagementView(uuid=None, function=None):
             db.session.commit()
             successMessage('The indicator has been deleted')
             return redirect(url_for('perfBP.indicatorListView'))
+    else:
+        errorMessage('Cannot verify your account, please log in again')
+        return redirect(url_for('indexView'))
+
+@perfBP.route('/target/', methods=['GET', 'POST'])
+@loginRequired
+@requiredRole([u'Superuser', u'Administrator'])
+def indicatorTargetView(uuid=None, function=None):
+    kwargs = {'title':'Indicator Targets',
+              'contentTitle':''}
+    ten = getCurrentTenant()
+    if ten:
+
+        if g.sijax.is_sijax_request:
+            g.sijax.register_object(SijaxHandler)
+            return g.sijax.process_request()
+
+        indicators = selectIndicatorForm()
+        indicators.indicator.choices = indicatorList()
+        targetForm = newIndicatorTarget()
+
+        if targetForm.validate_on_submit():
+            pass
+
+        return render_template('performance/indicatorTargetView.html', indicators=indicators, targetForm=targetForm, **kwargs)
     else:
         errorMessage('Cannot verify your account, please log in again')
         return redirect(url_for('indexView'))

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block head %}
+{{ super() }}
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/datepicker.min.css') }}">
+{% endblock %}
+{% block title %}{{title|safe}}{% endblock %}
+{% block content %}
+<div style="max-width:900px;">
+    <div class="row">
+        <div class="col-md-6 col-sm-6 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Select indicator</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <form>
+                    {{ indicators.indicator(class_='form-control ')}}
+                    </form>
+                </div>
+            </div>
+        </div>
+<!--
+        <div class="col-md-6 col-sm-6 col-xs-6">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Set new Target</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <form action="{{url_for('perfBP.indicatorTargetView')}}" method="post" id="targetForm" style="max-width:300px;float:right;">
+                        <div class="input-daterange input-group" id="datepicker" style="max-width:150px;">
+                            <label>Target valid from</label><br>
+                            {{ targetForm.targetValidFrom(placeholder="dd/mm/yyyy", class_='form-control')}}
+                            {% for error in targetForm.targetValidFrom.errors %}
+                            <p>{{error}}</p>
+                            {% endfor %}
+
+                            <label>Target valid to</label>
+                            {{ targetForm.targetValidTo(placeholder="dd/mm/yyyy", class_='form-control')}}
+                            {% for error in targetForm.targetValidTo.errors %}
+                            <p>{{error}}</p>
+                            {% endfor %}
+                        </div>
+
+                        {{ targetForm.targetValue.label }}
+                        {{ targetForm.targetValue(style="max-width:150px;", class_='form-control')}}
+                        {% for error in targetForm.targetValue.errors %}
+                            <p>{{error}}</p>
+                        {% endfor %}
+
+                        <br>
+                        <div class="input-group" style="float:right;">
+                            {{ targetForm.csrf_token }}
+                            {{ targetForm.targetSubmit(class_='btn btn-primary')}}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+-->
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Targets</h2>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="x_content">
+                    <table class="table table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Valid from</th>
+                                <th>Valid to</th>
+                                <th>Valid value</th>
+                                <th class="tableButtons">
+                                    <a href="{{ request.path }}/new"><i class="fa fa-plus"></i></a>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in tableData %}
+                            <tr>
+                                {% for i in row[1:] %}
+                                    <td>{{ i|safe }}</td>
+                                {% endfor %}
+                                <td class="tableButtons">
+                                    <form name="" action="" class="deleteForm" method="post">
+                                    <input type='hidden' name='uuid' value=''>
+                                    </form>
+                                    <a href="#" data-toggle="modal" data-target=".deleteModal{{row[0]}}"><i class="fa fa-close"></i></a>
+                                </td>
+
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block foot %}
+{{ super() }}
+<script type="text/javascript" src="/static/js/sijax/sijax.js"></script>
+<script type="text/javascript">{{ g.sijax.get_js()|safe }}</script>
+<script src="{{url_for('static', filename='js/datepicker.min.js')}}"></script>
+<script src="{{url_for('static', filename='js/datepicker.en-GB.min.js')}}"></script>
+<script type="text/javascript">
+    $('#targetForm .input-daterange').datepicker({
+        weekStart: 1,
+        todayHighlight: true,
+        language: "en-GB",
+        toggleActive: true,
+        autoclose: true,
+    });
+
+</script>
+{% endblock %}

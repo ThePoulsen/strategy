@@ -201,23 +201,24 @@ def loginView():
 # Logout
 @authBP.route('/logout', methods=['GET','POST'])
 def logoutView():
-    logout = authAPI(endpoint='logout', method='post', token=session['token'])
-
-    if ['error'] in logout:
-        if req['error'] == 'Could not identify access token':
-            errorMessage(req['error'])
-
-        elif req['error'] == 'Could not identify Platform':
-            errorMessage(req['error'])
-
-        elif req['error'] == 'Internal server error':
-            errorMessage(req['error'])
-
-        elif req['error'] == 'Invalid access token':
-            errorMessage(req['error'])
-
-    else:
-        session.clear()
-        successMessage('You are now logged out of the system')
-
+#    try:
+#        req = authAPI(endpoint='logout', method='post', token=session['token'])
+#        if 'error' in req:
+#            if req['error'] == 'Could not identify access token':
+#                errorMessage(req['error'])
+#
+#            elif req['error'] == 'Could not identify Platform':
+#                errorMessage(req['error'])
+#
+#            elif req['error'] == 'Internal server error':
+#                errorMessage(req['error'])
+#
+#            elif req['error'] == 'Invalid access token':
+#                errorMessage(req['error'])
+#        else:
+#            successMessage('You are now logged out of the system')
+#    except Exception as E:
+#        print unicode(E)
+#        errorMessage('An unspecified error ocurred, please close your browser to ensure logout')
+    session.clear()
     return redirect(url_for('indexView'))

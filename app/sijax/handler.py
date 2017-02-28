@@ -1,6 +1,7 @@
 ## -*- coding: utf-8 -*-
 import json
 from services import sijaxSuccess
+from app.performance.models import indicator, indicatorTarget
 from app.crud.groupCRUD import postGroup, checkGroup
 from app.crud.userCRUD import getUser
 
@@ -17,6 +18,12 @@ class SijaxHandler(object):
         obj_response.attr('#email', 'value', usr['email'])
         obj_response.attr('#phone', 'value', usr['phone'])
 
+    @staticmethod
+    def getIndicator(obj_response, uuid):
+#        usr = indicatorTarget.
+        obj_response.attr('#currentTarget', 'value', usr['email'])
+        obj_response.attr('#currentValidFrom', 'value', usr['phone'])
+        obj_response.attr('#currentValidTo', 'value', usr['phone'])
 
     @staticmethod
     def userFormGroupModal(obj_response, values):
