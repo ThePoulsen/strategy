@@ -11,8 +11,9 @@ from services import indicatorList, indicatorDetails
 from app.masterData.models import responsibilityType, responsibilityObject, responsibilityAssignment, calendar
 import uuid as UUID
 import flask_sijax
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 from app.sijax.handler import SijaxHandler
+
 
 perfBP = Blueprint('perfBP', __name__, template_folder='templates')
 
@@ -23,15 +24,16 @@ def indicatorListView(function=None, uuid=None):
     kwargs = {'title':'Performance indicators',
               'contentTitle':'Current performance indicators',
               'targetButtons':True,
+              'chartButtons':True,
               'tableColumns':['Indicator','Description' ,'Target', 'Actual', 'Deviation', 'Development']}
 
     editRoles = [u'Superuser', 'Administrator']
-
 
     if not any(i in editRoles for i in getRoles()):
         kwargs['detailsButton'] = True
         kwargs['withoutDeleteEntry'] = True
         kwargs['withoutNewEntry'] = True
+        kwargs['withoutNewEntry'] = False
 
     ten = getCurrentTenant()
     if ten:
@@ -327,6 +329,7 @@ def indicatorTargetView(uuid, function=None, target_uuid=None):
             for d in dd:
                 datesDisabled.append('{}/{}/{}'.format(d.day, d.month, d.year))
         kwargs['datesDisabled'] = datesDisabled
+        print datesDisabled
 
         if g.sijax.is_sijax_request:
             g.sijax.register_object(SijaxHandler)
@@ -337,7 +340,25 @@ def indicatorTargetView(uuid, function=None, target_uuid=None):
         targetForm = newIndicatorTarget()
 
         if targetForm.validate_on_submit():
-            print 'hej'
+            if indDetails['goodPerformance'] == 'Range':
+                valueTo = targetForm.valueTo.data
+            else:
+                valueTo = None
+
+            validFrom = calendar.query.filter_by(date = targetForm.targetValidFrom.data).first().id
+            validTo = calendar.query.filter_by(date = targetForm.targetValidTo.data).first().id
+
+            target = indicatorTarget(uuid = unicode(UUID.uuid4()),
+                                     fromTarget = targetForm.valueFrom.data,
+                                     toTarget = valueTo,
+                                     tenant_uuid = unicode(ten['uuid']),
+                                     indicator_uuid = unicode(uuid),
+                                     timestamp = datetime.now(),
+                                     validFrom = validFrom,
+                                     validTo = validTo)
+            db.session.add(target)
+            db.session.commit()
+
             successMessage('target has been added to the indicator')
             return redirect(url_for('perfBP.indicatorTargetView', uuid=uuid))
 
@@ -355,6 +376,28 @@ def indicatorTargetView(uuid, function=None, target_uuid=None):
                                                                       targetForm=targetForm,
                                                                       indDetails=indDetails,
                                                                       **kwargs)
+    else:
+        errorMessage('Cannot verify your account, please log in again')
+        return redirect(url_for('indexView'))
+
+@perfBP.route('/indicatorChart/<string:uuid>', methods=['GET'])
+@loginRequired
+@requiredRole([u'User', u'Superuser', u'Administrator'])
+def indicatorChartView(uuid, function=None, target_uuid=None):
+    kwargs = {'title':'Indicator Chart'}
+
+    ten = getCurrentTenant()
+    if ten:
+        try:
+            ind = indicator.query.filter_by(tenant_uuid=unicode(ten['uuid']), uuid=uuid).first()
+        except:
+            errorMessage('Indicator does not exist, or you do not have access to view target details')
+            return redirect(url_for('perfBP.indicatorListView'))
+
+        kwargs['contentTitle'] = ind.title
+
+        return render_template('performance/indicatorchart.html', **kwargs)
+
     else:
         errorMessage('Cannot verify your account, please log in again')
         return redirect(url_for('indexView'))

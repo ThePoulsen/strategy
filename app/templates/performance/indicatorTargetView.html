@@ -79,8 +79,12 @@
                             <tr>
                                 <th>Valid from</th>
                                 <th>Valid to</th>
-                                <th>Target value from</th>
-                                <th>Target value to</th>
+                                {% if indDetails.goodPerformance == 'Range' %}
+                                    <th>Target value from</th>
+                                    <th>Target value to</th>
+                                {% else %}
+                                    <th>Target Value</th>
+                                {% endif %}
                                 <th class="tableButtons">
                                     <a href="#" data-toggle="modal" data-target="#newTargetModal"><i class="fa fa-plus"></i></a>
                                 </th>
@@ -150,20 +154,34 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4 col-sm-4 col-xs-4">
-                            {{ targetForm.valueFrom.label }}
-                            {{ targetForm.valueFrom(class_='form-control')}}
-                            {% for error in targetForm.valueFrom.errors %}
-                                <p>{{error}}</p>
-                            {% endfor %}
-                        </div>
-                        <div class="col-md-4 col-sm-4 col-xs-4">
-                            {{ targetForm.valueTo.label }}
-                            {{ targetForm.valueTo(class_='form-control')}}
-                            {% for error in targetForm.valueTo.errors %}
-                                <p>{{error}}</p>
-                            {% endfor %}
-                        </div>
+                        {% if indDetails.goodPerformance == 'Range' %}
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                {{ targetForm.valueFrom.label }}
+                                {{ targetForm.valueFrom(class_='form-control')}}
+                                {% for error in targetForm.valueFrom.errors %}
+                                    <p>{{error}}</p>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                {{ targetForm.valueTo.label }}
+                                {{ targetForm.valueTo(class_='form-control')}}
+                                {% for error in targetForm.valueTo.errors %}
+                                    <p>{{error}}</p>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="col-md-6 col-sm-6 col-xs-6">
+                                <label>Target Value</label>
+                                {{ targetForm.valueFrom(class_='form-control')}}
+                                {% for error in targetForm.valueFrom.errors %}
+                                    <p>{{error}}</p>
+                                {% endfor %}
+                             </div>
+                            <div class="col-md-6 col-sm-6 col-xs-646">
+                                {{ targetForm.valueTo(class_='form-control hidden', value=0)}}
+                            </div>
+                        {% endif %}
+
                     </div>
                     <br>
                     <div class="row">

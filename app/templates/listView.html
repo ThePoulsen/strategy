@@ -19,6 +19,9 @@
             {% if targetButtons %}
             <th class="tableButtons"></th>
             {% endif %}
+            {% if chartButtons %}
+            <th class="tableButtons"></th>
+            {% endif %}
             {% if not withoutDeleteEntry %}
             <th class="tableButtons"></th>
             {% endif %}
@@ -54,6 +57,11 @@
             {% if targetButtons %}
             <td class="tableButtons">
                 <a href="{{url_for('perfBP.indicatorTargetView', uuid=row[0])}}"><i class="fa fa-bullseye"></i></a>
+            </td>
+            {% endif %}
+            {% if chartButtons %}
+            <td class="tableButtons">
+                <a href="{{url_for('perfBP.indicatorChartView', uuid=row[0])}}"><i class="fa fa-line-chart"></i></a>
             </td>
             {% endif %}
             {% if not withoutDeleteEntry %}

@@ -18,17 +18,55 @@ def indicatorDetails(uuid):
     owner_uuid = responsibilityAssignment.query.filter_by(responsibilityObject_id = respObj.id,
                                                           responsibilityType_id = respOwner.id,
                                                           reference_uuid = uuid).first().user_uuid
-    owner = getUser(owner_uuid)['user']
-    respList = responsibilityAssignment.query.filter_by(responsibilityObject_id = respObj.id,
+    try:
+        owner = getUser(owner_uuid)['user']
+    except:
+        owner = {'name':''}
+
+
+    respIdList = responsibilityAssignment.query.filter_by(responsibilityObject_id = respObj.id,
                                                           responsibilityType_id = resp.id,
                                                           reference_uuid = uuid).all()
 
+    try:
+        respList = [getUser(r.user_uuid)['user']['name'] for r in respIdList]
+    except:
+        respList = []
 
-    data = {'title':ind.title, 'desc':ind.desc,'dataSource':ind.dataSource, 'measurementFrequency':measurementFrequency.query.filter_by(id=ind.measurementFrequency_id).first().title,
-           'UOM':UOM.query.filter_by(id=ind.UOM_id).first().title,
-           'processType':processType.query.filter_by(id=ind.processType_id).first().title,
-           'indicatorType':indicatorType.query.filter_by(id=ind.indicatorType_id).first().title,
-           'goodPerformance':goodPerformance.query.filter_by(id=ind.goodPerformance_id).first().title,
-           'owner':owner['name'],
-           'responsible':[getUser(r.user_uuid)['user']['name'] for r in respList]}
+    try:
+        mf = measurementFrequency.query.filter_by(id=ind.measurementFrequency_id).first().title
+    except:
+        mf = ''
+
+    try:
+        uom = UOM.query.filter_by(id=ind.UOM_id).first().title
+    except:
+        uom = ''
+
+    try:
+        pt = processType.query.filter_by(id=ind.processType_id).first().title
+    except:
+        pt = ''
+
+    try:
+        it = indicatorType.query.filter_by(id=ind.indicatorType_id).first().title
+    except:
+        it = ''
+
+    try:
+        gp = goodPerformance.query.filter_by(id=ind.goodPerformance_id).first().title
+    except:
+        gp = ''
+
+    data = {'title':ind.title,
+            'desc':ind.desc,
+            'dataSource':ind.dataSource,
+            'measurementFrequency':mf,
+            'UOM':uom,
+            'processType':pt,
+            'indicatorType':it,
+            'goodPerformance':gp,
+            'owner':owner['name'],
+            'responsible':respList}
+
     return data
