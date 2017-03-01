@@ -296,9 +296,10 @@ def indicatorManagementView(uuid=None, function=None):
         return redirect(url_for('indexView'))
 
 @perfBP.route('/target/<string:uuid>', methods=['GET', 'POST'])
+@perfBP.route('/target/<string:uuid>/<string:function>/<string:target_uuid>', methods=['GET', 'POST'])
 @loginRequired
 @requiredRole([u'Superuser', u'Administrator'])
-def indicatorTargetView(uuid):
+def indicatorTargetView(uuid, function=None, target_uuid=None):
     kwargs = {'title':'Indicator Targets',
               'contentTitle':'',
               'indicator_uuid':uuid}
@@ -340,11 +341,13 @@ def indicatorTargetView(uuid):
             successMessage('target has been added to the indicator')
             return redirect(url_for('perfBP.indicatorTargetView', uuid=uuid))
 
-        return render_template('performance/indicatorTargetView.html',
-                                    indicators=indicators,
-                                    targetForm=targetForm,
-                                    indDetails=indDetails,
-                                    **kwargs)
+        if function == 'delete' and target_uuid != None:
+            return unicode(target_uuid)
+
+        return render_template('performance/indicatorTargetView.html',indicators=indicators,
+                                                                      targetForm=targetForm,
+                                                                      indDetails=indDetails,
+                                                                      **kwargs)
     else:
         errorMessage('Cannot verify your account, please log in again')
         return redirect(url_for('indexView'))

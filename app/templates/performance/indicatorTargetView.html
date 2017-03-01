@@ -92,13 +92,14 @@
                                 {% for i in row[1:] %}
                                     <td>{{ i|safe }}</td>
                                 {% endfor %}
+                                {% if not withoutDeleteEntry %}
                                 <td class="tableButtons">
-                                    <form name="" action="" class="deleteForm" method="post">
-                                    <input type='hidden' name='uuid' value=''>
+                                    <form name="deleteForm{{row[0]}}" action="{{ request.path }}/delete/{{row[0]}}" class="deleteForm" method="post">
+                                    <input type='hidden' name='uuid' value='{{row[0]}}'>
                                     </form>
                                     <a href="#" data-toggle="modal" data-target=".deleteModal{{row[0]}}"><i class="fa fa-close"></i></a>
                                 </td>
-
+                                {% endif %}
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -180,6 +181,12 @@
         </div>
     </div>
 </div>
+{% include 'modal/deleteModal.html' %}
+<script type="text/javascript">
+    function confirm_click(){
+        return confirm("Are you sure ?");
+    }
+</script>
 
 {% endblock %}
 {% block foot %}
