@@ -341,8 +341,15 @@ def indicatorTargetView(uuid, function=None, target_uuid=None):
             successMessage('target has been added to the indicator')
             return redirect(url_for('perfBP.indicatorTargetView', uuid=uuid))
 
-        if function == 'delete' and target_uuid != None:
-            return unicode(target_uuid)
+        if function == 'delete' and target_uuid != None and request.method == 'POST':
+            target = indicatorTarget.query.filter_by(uuid=unicode(target_uuid), tenant_uuid=ten['uuid']).first()
+            if not target.uuid:
+                errorMessage('Cannot delete target')
+            else:
+                db.session.delete(target)
+                db.session.commit()
+                successMessage('Target has been deleted')
+                return redirect(url_for('perfBP.indicatorTargetView', uuid=uuid))
 
         return render_template('performance/indicatorTargetView.html',indicators=indicators,
                                                                       targetForm=targetForm,
