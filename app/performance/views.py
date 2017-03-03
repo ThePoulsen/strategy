@@ -13,6 +13,7 @@ import uuid as UUID
 import flask_sijax
 from datetime import date, timedelta, datetime
 from app.sijax.handler import SijaxHandler
+from app.chart.services import mthRange
 
 
 perfBP = Blueprint('perfBP', __name__, template_folder='templates')
@@ -386,6 +387,15 @@ def indicatorTargetView(uuid, function=None, target_uuid=None):
 def indicatorChartView(uuid, function=None, target_uuid=None):
     kwargs = {'title':'Indicator Chart'}
 
+
+    kwargs['chartData'] = {'avgBottom': [[1, -2],[2, -2],[3, -2],[4, -2], [5, -2], [6,'null'],[7,'null'],[8,'null'],[9,'null'],[10,'null'],[11,'null'],[12,'null']],
+                           'avgTop':    [[1, 3], [2, 5], [3, 7], [4, 4],  [5, 3], [6,'null'],[7,'null'],[8,'null'],[9,'null'],[10,'null'],[11,'null'],[12,'null']],
+                           'values':    [[1, .5],[2, -3],[3, .8],[4, 4.5],[5, 6.6], [6,'null'],[7,'null'],[8,'null'],[9,'null'],[10,'null'],[11,'null'],[12,'null']]
+                          }
+
+
+
+
     ten = getCurrentTenant()
     if ten:
         try:
@@ -395,8 +405,9 @@ def indicatorChartView(uuid, function=None, target_uuid=None):
             return redirect(url_for('perfBP.indicatorListView'))
 
         kwargs['contentTitle'] = ind.title
+        kwargs['xTicks'] = mthRange(uuid, ten['uuid'], 2017)
 
-        return render_template('performance/indicatorchart.html', **kwargs)
+        return render_template('performance/indicatorChart.html', **kwargs)
 
     else:
         errorMessage('Cannot verify your account, please log in again')
