@@ -1,46 +1,38 @@
 from app.masterData.models import month, calendar
-from app.performance.models import indicatorTarget
-from datetime import date
+from app.performance.models import indicatorTarget, indicator
+from datetime import date, datetime
 
-def mthRange(indicator_uuid, tenant_uuid, year):
+epoch = datetime.utcfromtimestamp(0)
+
+def miliseconds(date=None, dt=None):
+    if date == None and dt != None:        
+        return (dt - epoch).total_seconds() * 1000.0
+    elif date != None and dt == None:
+        dt = datetime.combine(date, datetime.min.time())
+        return (dt - epoch).total_seconds() * 1000.0
+
+def targetRange(indicator_uuid, tenant_uuid, fillMissingData=False):
+    ind = indicator.query.filter_by(uuid=indicator_uuid,
+                                    tenant_uuid=tenant_uuid).first()
+#    targets = ind.targets
+    targets = [[t.validFrom, t.validTo, t.fromTarget, t.toTarget] for t in ind.targets]
+    targets.sort(key = lambda row: row[0])
     data = {}
-    months = [[m.no, str(m.abbr)] for m in month.query.all()]
-    months.insert(0,0)
-    data['xTicks'] = months
-
-    target = indicatorTarget.query.filter_by(indicator_uuid=indicator_uuid,
-                                             tenant_uuid=tenant_uuid).all()
-
-    date['fromTarget']=[]
-    date['toTarget']=[]
-    for t in target:
-        validFrom = calendar.query.filter_by(year=year, id=t.validFrom).first().date
-        validTo = calendar.query.filter_by(year=year, id=t.validFrom).first().date
-        fromTarget = t.fromTarget
-        toTarget = t.toTarget
-
-        dd = [validFrom + timedelta(days=x) for x in range((validTo-validFrom).days + 1)]
-        for d in dd:
-            date['fromTarget'].append([d.month, fromTarget])
-
-
-def mthAbove():
-    pass
-
-def mthBelow():
-    pass
-
-def mthOn():
-    pass
-
-def weekRange():
-    pass
-
-def weekAbove():
-    pass
-
-def weekBelow():
-    pass
-
-def weekOn():
-    pass
+    fromData = []
+    toData = []
+    for t in targets:    
+        validFrom = miliseconds(calendar.query.filter_by(id=t[0]).first().date)
+        validTo = miliseconds(calendar.query.filter_by(id=t[1]).first().date)
+                
+        fromData.append([validFrom, t[2]])
+        fromData.append([validTo, t[2]])
+        if not fillMissingData:
+            fromData.append([None,None])
+        toData.append([validFrom, t[3]])
+        toData.append([validTo, t[3]])
+        if not fillMissingData:
+            toData.append([None, None])
+    
+    data['from'] = fromData
+    data['to'] = toData
+    return data

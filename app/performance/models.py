@@ -19,6 +19,8 @@ class indicator(db.Model):
     processType_id = db.Column(db.Integer, db.ForeignKey('processType.id'))
     indicatorType_id = db.Column(db.Integer, db.ForeignKey('indicatorType.id'))
     goodPerformance_id = db.Column(db.Integer, db.ForeignKey('goodPerformance.id'))
+    
+    targets = db.relationship('indicatorTarget', backref='indicator', lazy='dynamic')
 
 class indicatorTarget(db.Model):
     __tablename__ = 'indicatorTarget'

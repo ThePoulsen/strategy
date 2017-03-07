@@ -73,11 +73,6 @@ def companyView():
 
 
 
-
-
-
-
-
     return render_template('settings/companyView.html', form=form, **kwargs)
 
 

@@ -43,6 +43,9 @@ from app.user.views import userBP
 from app.masterData.views import mdBP
 from app.performance.views import perfBP
 
+# import api blueprints
+from app.performance.api import APIperfBP
+
 ## Register blueprints
 app.register_blueprint(adminBP, url_prefix='/admin')
 app.register_blueprint(authBP, url_prefix='/authorization')
@@ -50,6 +53,9 @@ app.register_blueprint(settingsBP, url_prefix='/settings')
 app.register_blueprint(userBP, url_prefix='/userManagement')
 app.register_blueprint(mdBP, url_prefix='/masterData')
 app.register_blueprint(perfBP, url_prefix='/performance')
+
+# register api blueprints
+app.register_blueprint(APIperfBP, url_prefix='/api/performance')
 
 
 # indexView

@@ -39,9 +39,9 @@ respObject = ['Mission','Vision','Objective','Strategy','Project','Task','Task I
 
 respType = ['Owner','Driver','Responsible','Support','Resources','Expertise']
 
-uom = ['Percent','Dollars','Euros','Index','Milestone','Days','Hours','Minutes']
+uom = ['Absolute value','Currency','Percent','Index','Milestones','Days','Hours','Minutes','Seconds']
 
-measurementFreq = ['Weekly','Monthly','Quarterly']
+measurementFreq = ['Daily','Weekly','Monthly','Quarterly']
 
 processTyp = ['Safety','Quality','Delivery','Cost','Productivity']
 

@@ -6,6 +6,17 @@ body {
     width: 100%;
 }
 
+#tooltip {    
+    position: absolute;
+    line-height: 80%;
+    display: none;
+    border: 1px solid #fdd;
+    padding: 5px;
+    padding-top: 15px;
+    background-color: #fee;
+    opacity: 0.80;
+}
+
 .chart-container {
 	box-sizing: border-box;
 /*	width: 850px;*/

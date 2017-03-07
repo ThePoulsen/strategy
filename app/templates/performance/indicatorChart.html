@@ -1,14 +1,6 @@
 {% extends "base.html" %}
 {% block head %}
 {{ super() }}
-
-<style>
-		canvas {
-				-moz-user-select: none;
-				-webkit-user-select: none;
-				-ms-user-select: none;
-		}
-	</style>
 {% endblock %}
 {% block title %}{{title|safe}}{% endblock %}
 {% block content %}
@@ -17,13 +9,36 @@
 <div class="x_panel">
 <div class="x_title">
 <h2>{{contentTitle|safe}}</h2>
+<ul class="nav navbar-right panel_toolbox">
+<li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
+</li>
+<li class="dropdown">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-cog"></i></a>
+    <ul class="dropdown-menu" role="menu">
+
+    {% if request.args.get('fillMissingData')=='true' %}
+    <li><a href="javascript:void(0)" onclick="AlterQueryString('fillMissingData', false)">Remove empty data</a>
+    </li>
+    {% else %}
+    <li><a href="javascript:void(0)" onclick="AlterQueryString('fillMissingData', true)">Fill empty data</a>
+    </li>
+    {% endif %}
+
+    </ul>
+</li>
+<li><a class="close-link"><i class="fa fa-close"></i></a>
+</li>
+</ul>
+    
+
+    
+    
 <div class="clearfix"></div>
 </div>
 <div class="x_content">
     <div class="chart-container">
-			<div id="chart" class="chart"></div>
-		</div>
-<!--    <canvas id="myChart" height="400"></canvas>-->
+		<div id="chart" class="chart"></div>
+	</div>
 </div>
 </div>
 </div>
@@ -31,59 +46,66 @@
 {% block foot %}
 {{ super() }}
 <script src="//cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.time.min.js"></script>
+<script src="{{url_for('static', filename='js/jquery.flot.time.js')}}"></script>
 <script src="http://www.flotcharts.org/flot/jquery.flot.fillbetween.js"></script>
 <script src="https://raw.githubusercontent.com/analoureiro99/flot-fillArea-plugin/master/jquery.flot.fillarea.js"></script>
 <script src="http://www.flotcharts.org/flot/jquery.flot.resize.js"></script>
-<script type="text/javascript">
 
-	$(function() {
-		var values = {{chartData|safe}};
+<script type='text/javascript'>
+    
+    function prettyDate(date) {
+      var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-        var dataset = [{id: 'avgTopLine',
-                        data: values['avgTop'],
-                        label: 'Upper target',
-                        lines: {show: true,
-                                lineWidth: 2,
-                                fill: false},
-                        color: '#2ecc71'},
+      return months[date.getUTCMonth()] + ' ' + date.getUTCDate() + ', ' + date.getUTCFullYear();
+    }
+    
+    $("#chart").bind("plothover", function (event, pos, item) {
+    if (item) { 
+        var dataLabel = item.series.label,
+            dataDate = item.datapoint[0],
+            dataValue = item.datapoint[1];
+        
+        $("<div id='tooltip'></div>").appendTo("body");
+        
+        $("#tooltip").html('<p>Data Series  -  '+dataLabel+'<br>'+
+                           '<p>Date  -  '+prettyDate(new Date(dataDate))+'<br>'+
+                           '<p>Value  -  '+dataValue+'</p>')
+                     .css({top: item.pageY+5, left: item.pageX+5})
+                     .fadeIn(200);
 
-                       {id: 'avgBottom',
-                        data: values['avgBottom'],
-                        label: 'Lower target',
-                        lines: {show: true,
-                                lineWidth: 2,
-                                fill: false},
-                        color: '#e67e22'},
+    } else {
+        $("#tooltip").hide();
+    }
+});
+    $.plot($("#chart"), {{ my_graph.json_data | safe }}, {{ my_graph.options | safe }});
+</script>
 
-                       {id: 'avgTop',
-                        data: values['avgTop'],
-                        lines: {show: true,
-                                lineWidth: 0,
-                                fill: 0.08},
-                        fillBetween: 'avgBottom',
-                        color: '#f1c40f'},
+<script>
+function AlterQueryString(param, val) {
+    var queryString = window.location.search.replace("?", "");
+    var parameterListRaw = queryString == "" ? [] : queryString.split("&");
+    var parameterList = {};
+    for (var i = 0; i < parameterListRaw.length; i++) {
+        var parameter = parameterListRaw[i].split("=");
+        if (typeof val != 'undefined') {
+            parameterList[parameter[0]] = parameter[1];
+        } else if (param != parameter[0]) {
+            parameterList[parameter[0]] = parameter[1];
+        }
+    }
+    if (typeof val != 'undefined') {
+        parameterList[param] = val;
+    }
 
-                       {data: values['values'],
-                        label: 'Actual',
-                        lines: {show: true,
-                                lineWidth: 3,
-                                fill: false},
-                        points: {show: true,
-                                 radius: 4},
-                        color: '#34495e'}, ];
-
-        $.plot($("#chart"), dataset, {xaxis: {ticks: {{xTicks|safe}}},
-                                      yaxis: {},
-                                      series: {lines: {},
-                                               points: {}},
-                                     });
-
-
-        $(".chart-container").resizable({
-        });
-
-	});
-
-	</script>
+    var newQueryString = Object.keys(parameterList).length > 0 ? "?" : "";
+    for (var item in parameterList) {
+        if (parameterList.hasOwnProperty(item)) {
+            newQueryString += item + "=" + parameterList[item] + "&";
+        }
+    }
+    newQueryString = newQueryString.replace(/&$/, "");
+    location.href = location.origin + location.pathname + newQueryString;
+}
+</script>
 {% endblock %}

@@ -10,11 +10,10 @@ from app.masterData.services import frequencyList, uomList, processTypeList, ind
 from services import indicatorList, indicatorDetails
 from app.masterData.models import responsibilityType, responsibilityObject, responsibilityAssignment, calendar
 import uuid as UUID
-import flask_sijax
+import flask_sijax, flot, distutils
 from datetime import date, timedelta, datetime
 from app.sijax.handler import SijaxHandler
-from app.chart.services import mthRange
-
+from app.chart.services import targetRange
 
 perfBP = Blueprint('perfBP', __name__, template_folder='templates')
 
@@ -319,6 +318,7 @@ def indicatorTargetView(uuid, function=None, target_uuid=None):
         targets = indicatorTarget.query.filter_by(tenant_uuid=unicode(ten['uuid']), indicator_uuid = uuid).all()
 
         tableData = [[r.uuid, calendar.query.get(r.validFrom).date, calendar.query.get(r.validTo).date,r.fromTarget,r.toTarget] for r in targets]
+        tableData.sort(key = lambda row: row[1])
         kwargs['tableData'] = tableData
 
         # Build list of dates already assigned targets
@@ -330,7 +330,6 @@ def indicatorTargetView(uuid, function=None, target_uuid=None):
             for d in dd:
                 datesDisabled.append('{}/{}/{}'.format(d.day, d.month, d.year))
         kwargs['datesDisabled'] = datesDisabled
-        print datesDisabled
 
         if g.sijax.is_sijax_request:
             g.sijax.register_object(SijaxHandler)
@@ -343,6 +342,8 @@ def indicatorTargetView(uuid, function=None, target_uuid=None):
         if targetForm.validate_on_submit():
             if indDetails['goodPerformance'] == 'Range':
                 valueTo = targetForm.valueTo.data
+                if valueTo <= targetForm.valueFrom.data:
+                    targetForm.valueTo.errors.append('Upper Range cannot be equal to or lower than Lower Range')
             else:
                 valueTo = None
 
@@ -386,17 +387,8 @@ def indicatorTargetView(uuid, function=None, target_uuid=None):
 @requiredRole([u'User', u'Superuser', u'Administrator'])
 def indicatorChartView(uuid, function=None, target_uuid=None):
     kwargs = {'title':'Indicator Chart'}
-
-
-    kwargs['chartData'] = {'avgBottom': [[1, -2],[2, -2],[3, -2],[4, -2], [5, -2], [6,'null'],[7,'null'],[8,'null'],[9,'null'],[10,'null'],[11,'null'],[12,'null']],
-                           'avgTop':    [[1, 3], [2, 5], [3, 7], [4, 4],  [5, 3], [6,'null'],[7,'null'],[8,'null'],[9,'null'],[10,'null'],[11,'null'],[12,'null']],
-                           'values':    [[1, .5],[2, -3],[3, .8],[4, 4.5],[5, 6.6], [6,'null'],[7,'null'],[8,'null'],[9,'null'],[10,'null'],[11,'null'],[12,'null']]
-                          }
-
-
-
-
     ten = getCurrentTenant()
+    
     if ten:
         try:
             ind = indicator.query.filter_by(tenant_uuid=unicode(ten['uuid']), uuid=uuid).first()
@@ -405,9 +397,60 @@ def indicatorChartView(uuid, function=None, target_uuid=None):
             return redirect(url_for('perfBP.indicatorListView'))
 
         kwargs['contentTitle'] = ind.title
-        kwargs['xTicks'] = mthRange(uuid, ten['uuid'], 2017)
-
-        return render_template('performance/indicatorChart.html', **kwargs)
+        try:
+            fillMissingData = distutils.util.strtobool(request.args.get('fillMissingData'))
+        except:
+            fillMissingData = False
+            
+        
+        targetData = targetRange(uuid, ten['uuid'], fillMissingData=fillMissingData)
+        fromTargetData = targetData['from']
+        toTargetData = targetData['to']   
+        
+        class ToTargetLine(flot.Series):
+            data = toTargetData
+            class Meta:
+                id = 'ToTargetLine'
+                label = 'Upper Range'
+                lines = {'show': True,
+                        'lineWidth': 2,
+                        'fill': False}
+                points = {'show': True}
+                color = '#2ecc71'
+        
+        class FromTarget(flot.Series):
+            data = fromTargetData
+            class Meta:
+                id = 'FromTarget'
+                label = 'Lower Range'
+                lines = {'show': True,
+                        'lineWidth': 2,
+                        'fill': False}
+                color = '#e67e22'
+                points = {'show': True}
+                                
+        class TargetRangeFill(flot.Series):
+            data = toTargetData
+            
+            class Meta:
+                id = 'ToTarget'
+                lines = {'show': True,
+                        'lineWidth': 0,
+                        'fill': 0.08}
+                fillBetween = 'FromTarget'
+                color = '#f1c40f'
+            
+        class MyGraph(flot.Graph):
+            toTargetLine = ToTargetLine()
+            fromTarget = FromTarget()
+            targetRangeFill = TargetRangeFill()
+            options = flot.GraphOptions()
+            options['xaxis'] = { 'format': '%d-%m-%Y', 'mode': 'time' }    
+            options['grid'] = { 'hoverable':'true', 'clickable': 'true' }               
+            
+        my_graph = MyGraph()
+        
+        return render_template('performance/indicatorChart.html', my_graph=my_graph, **kwargs)
 
     else:
         errorMessage('Cannot verify your account, please log in again')

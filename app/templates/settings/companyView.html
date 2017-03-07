@@ -4,7 +4,7 @@
 {% endblock %}
 {% block title %}{{title|safe}}{% endblock %}
 {% block content %}
-<div class="col companyViewContainer">
+<div class="col" style="max-width:750px;">
     <div class="x_panel">
         <div class="x_content">
             <form action="{{ url_for('settingsBP.companyView') }}" method="post" >

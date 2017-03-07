@@ -5,7 +5,7 @@ from flask import g, flash, session, redirect, url_for, abort, render_template
 from itsdangerous import URLSafeTimedSerializer
 from flask_mail import Message
 import requests, json, re, sqlalchemy
-from wtforms import widgets, validators
+from wtforms import widgets, validators, DecimalField
 from functools import wraps
 from authAPI import authAPI
 
@@ -114,3 +114,9 @@ class XMLType(sqlalchemy.types.UserDefinedType):
                 value = etree.fromstring(value)
             return value
         return process
+        
+class FlexibleDecimalField(DecimalField):
+    def process_formdata(self, valuelist):
+        if valuelist:
+            valuelist[0] = valuelist[0].replace(",", ".")
+        return super(FlexibleDecimalField, self).process_formdata(valuelist)

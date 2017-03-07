@@ -11,7 +11,21 @@ class SijaxHandler(object):
     (or a Python module) allows them all to be registered with
     a single line of code.
     """
+    
+    @staticmethod
+    def containerSize(obj_response, uuid, size):
+        containerId = unicode('#containerSize_')+unicode(uuid)
+        if size == 'small':
+            obj_response.attr(containerId, 'class', 'col-xs-12 col-sm-12 col-md-3 col-lg-3')
+        elif size == 'medium':
+            obj_response.attr(containerId, 'class', 'col-xs-12 col-sm-12 col-md-6 col-lg-6')
+        elif size == 'large':
+            obj_response.attr(containerId, 'class', 'col-xs-12 col-sm-12 col-md-9 col-lg-9')
+        elif size == 'veryLarge':
+            obj_response.attr(containerId, 'class', 'col-xs-12 col-sm-12 col-md-12 col-lg-12')
 
+        
+    
     @staticmethod
     def cancelModal(obj_response, form, modal):
         obj_response.script("$('#{}')[0].reset();".format(form))

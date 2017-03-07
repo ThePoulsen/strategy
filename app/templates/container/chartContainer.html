@@ -1,0 +1,48 @@
+<div id="containerSize_{{containerUUID|safe}}" class="{{initialSize}}">
+<div class="x_panel">
+<div class="x_title">
+<h2>{{containerTitle|safe}}</h2>
+<ul class="nav navbar-right panel_toolbox">
+
+<li style="float:right;" ><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
+<li class="dropdown" style="float:right;">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-chevron-left"></i><i class="fa fa-chevron-right"></i></a>
+<ul class="dropdown-menu" role="menu">
+
+    <li><a href="javascript:void(0)" id="smallSize" onclick="Sijax.request('containerSize', [{{containerUUID}}, 'small']);">Small</a></li>
+    <li><a href="javascript:void(0)" id="mediumSize" onclick="Sijax.request('containerSize', [{{containerUUID}}, 'medium']);">Medium</a></li>
+    <li><a href="javascript:void(0)" id="largeSize" onclick="Sijax.request('containerSize', [{{containerUUID}}, 'large']);">Large</a></li>
+    <li><a href="javascript:void(0)" id="veryLargeSize" onclick="Sijax.request('containerSize', [{{containerUUID}}, 'veryLarge']);">Very Large</a></li>
+
+</ul>
+</li>
+<li class="dropdown" style="float:right;">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"><i class="fa fa-cog"></i></a>
+    <ul class="dropdown-menu" role="menu">
+        
+        <li><a href="javascript:void(0)" onclick="">Toggle edit mode</a></li>
+        <li><a href="javascript:void(0)" onclick="">Discard changes</a></li>
+        <li><a href="javascript:void(0)" onclick="">Save changes</a></li>
+        
+    </ul>
+</li>
+</ul>  
+<div class="clearfix"></div>
+</div>
+<div class="x_content">
+    <div class="chart-container">
+		<div id="chart" class="chart"></div>
+	</div>
+</div>
+</div>
+</div>
+
+
+<!--Sijax submission-->
+<script type="text/javascript">
+$(function() {
+    $('#mediumSize').bind('click', function() {
+        Sijax.request('containerSize', [{{containerUUID}}, 'medium']);
+    });
+});
+</script>

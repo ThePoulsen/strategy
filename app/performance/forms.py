@@ -1,9 +1,10 @@
 ## -*- coding: utf-8 -*-
 
 from flask_wtf import FlaskForm
-from wtforms import IntegerField, FloatField, StringField, SelectField, TextAreaField, SelectMultipleField, validators, SubmitField, DateField
-from wtforms.validators import InputRequired, Email
-from app.admin.services import  select2MultipleWidget, select2Widget
+from wtforms import IntegerField, FloatField, StringField, SelectField, TextAreaField, SelectMultipleField, validators, SubmitField, DateField, DecimalField
+from wtforms.validators import InputRequired, Email, ValidationError
+from app.admin.services import  select2MultipleWidget, select2Widget, FlexibleDecimalField
+
 
 
 class indicatorForm(FlaskForm):
@@ -25,5 +26,9 @@ class selectIndicatorForm(FlaskForm):
 class newIndicatorTarget(FlaskForm):
     targetValidFrom = DateField('Valid From', format="%d/%m/%Y", validators=[InputRequired('Please select a date')])
     targetValidTo = DateField('Valid To', format="%d/%m/%Y", validators=[InputRequired('Please select a date')])
-    valueFrom = FloatField('Value from', validators=[InputRequired('Please enter a value')])
-    valueTo = FloatField('Value to', validators=[InputRequired('Please enter a value')])
+    valueFrom = FlexibleDecimalField('Value from', validators=[InputRequired('Please enter a value')])
+    valueTo = FlexibleDecimalField('Value to', validators=[InputRequired('Please enter a value')])
+
+    def validate_valueTo(self, field):
+        if field.data <= self.valueFrom.data:
+            raise ValidationError('"Value to" must be higher than "Value from"')
