@@ -153,6 +153,8 @@ def loginView():
                 session['token'] = req['token']
                 session['email'] = req['email']
                 session['roles'] = req['roles']
+                session['tenant_uuid'] = req['tenant_uuid']
+                session['user_uuid'] = req['user_uuid']
                 successMessage('You are now logged in')
                 return redirect(url_for('indexView'))
             elif 'error' in req:
@@ -190,6 +192,8 @@ def loginView():
                     session['token'] = req['token']
                     session['email'] = req['email']
                     session['roles'] = req['roles']
+                    session['tenant_uuid'] = req['tenant_uuid']
+                    session['user_uuid'] = req['user_uuid']
                     errorMessage('Please change your password')
                     return redirect(url_for('userBP.changePasswordView'))
 

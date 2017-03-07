@@ -13,8 +13,8 @@ class SijaxHandler(object):
     """
     
     @staticmethod
-    def containerSize(obj_response, uuid, size):
-        containerId = unicode('#containerSize_')+unicode(uuid)
+    def containerSize(obj_response, id, size):
+        containerId = unicode('#containerSize_')+unicode(id)
         if size == 'small':
             obj_response.attr(containerId, 'class', 'col-xs-12 col-sm-12 col-md-3 col-lg-3')
         elif size == 'medium':

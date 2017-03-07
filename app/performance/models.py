@@ -3,12 +3,17 @@
 from app import db
 from datetime import datetime
 
+indicatorChartType = db.Table('indicatorChartType',
+    db.Column('chartType_id', db.Integer, db.ForeignKey('chartType.id')),
+    db.Column('indicator_id', db.Integer, db.ForeignKey('indicator.id')))
+
 class indicator(db.Model):
     __tablename__ = 'indicator'
+    __table_args__ = (db.UniqueConstraint('title', 'tenant_uuid', name='_title_tenant'),)
 
     id = db.Column(db.Integer, primary_key=True)
     uuid = db.Column(db.String(), unique=True)
-    title = db.Column(db.String(), unique=True)
+    title = db.Column(db.String())
     desc = db.Column(db.String())
     dataSource = db.Column(db.String())
 
@@ -21,6 +26,9 @@ class indicator(db.Model):
     goodPerformance_id = db.Column(db.Integer, db.ForeignKey('goodPerformance.id'))
     
     targets = db.relationship('indicatorTarget', backref='indicator', lazy='dynamic')
+
+    chartTypes = db.relationship('chartType', secondary=indicatorChartType,
+        backref=db.backref('indicators', lazy='dynamic'))
 
 class indicatorTarget(db.Model):
     __tablename__ = 'indicatorTarget'

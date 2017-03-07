@@ -44,12 +44,12 @@
             <td class="tableButtons">
                 {% if not detailsButton %}
                 <form name="editForm{{row[0]}}" action="{{ request.path }}/update/{{row[0]}}" class="updateForm" method="get">
-                    <input type='hidden' class="updateButton" type="submit" value="Rediger">
+                    <input type='hidden' class="updateButton" type="submit" value="Edit">
                 </form>
                 <a href="#" onclick="document.forms['editForm{{row[0]}}'].submit(); return false;"><i class="fa fa-edit"></i></a>
                 {% else %}
                 <form name="editForm{{row[0]}}" action="{{ request.path }}/details/{{row[0]}}" class="updateForm" method="get">
-                    <input type='hidden' class="detailsButton" type="submit" value="Detaljer">
+                    <input type='hidden' class="detailsButton" type="submit" value="Details">
                 </form>
                 <a href="#" onclick="document.forms['editForm{{row[0]}}'].submit(); return false;"><i class="fa fa-search"></i></a>
                 {% endif %}

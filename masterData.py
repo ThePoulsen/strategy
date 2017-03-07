@@ -1,7 +1,7 @@
 ## -*- coding: utf-8 -*-
 import csv
 from app import db
-from app.masterData.models import weekDay, month, quarter, calendar, region, subRegion, country, taskStatus, responsibilityType, responsibilityObject, strategyLevel, UOM, measurementFrequency, actionStatus, processType, indicatorType, goodPerformance
+from app.masterData.models import weekDay, month, quarter, calendar, region, subRegion, country, taskStatus, responsibilityType, responsibilityObject, strategyLevel, UOM, measurementFrequency, actionStatus, processType, indicatorType, goodPerformance, chartType, containerSize
 
 weekDays = [('Monday','Mon','1'),
         ('Tuesday','Tue','2'),
@@ -49,6 +49,13 @@ indicatorTyp = ['KPI','PPI','PI','KRI']
 
 goodPerf = ['Above target', 'Below target', 'On target', 'Range']
 
+chartTyp = ['line', 'area']
+
+containerSiz = [('small','col-xs-12 col-sm-12 col-md-3 col-lg-3'),
+                 ('medium','col-xs-12 col-sm-12 col-md-6 col-lg-6'),
+                 ('large','col-xs-12 col-sm-12 col-md-9 col-lg-9'),
+                 ('veryLarge','col-xs-12 col-sm-12 col-md-12 col-lg-12')]
+
 calData = csv.reader(open('calendar.csv','r'), delimiter=';')
 next(calData, None)
 
@@ -56,54 +63,64 @@ world = csv.reader(open('world.csv','r'))
 next(world, None)
 
 def createMasterData():
+    for ct in chartTyp:
+        list = [r.title for r in chartType.query.all()]
+        if not ct in list:
+            db.session.add(chartType(title=ct))
+
+    for cs in containerSiz:
+        list = [r.title for r in containerSize.query.all()]
+        if not cs[0] in list:
+            db.session.add(containerSize(title=cs[0], size=cs[1]))
+
     for g in goodPerf:
-        perf = [r.title for r in goodPerformance.query.all()]
-        if not g in perf:
+        list = [r.title for r in goodPerformance.query.all()]
+        if not g in list:
             db.session.add(goodPerformance(title=g))
 
     for p in processTyp:
-        proc = [r.title for r in processType.query.all()]
-        if not p in proc:
+        list = [r.title for r in processType.query.all()]
+        if not p in list:
             db.session.add(processType(title=p))
 
     for t in indicatorTyp:
-        typ = [r.title for r in indicatorType.query.all()]
-        if not t in typ:
+        list = [r.title for r in indicatorType.query.all()]
+        if not t in list:
             db.session.add(indicatorType(title=t))
 
     for mf in measurementFreq:
-        freq = [r.title for r in measurementFrequency.query.all()]
-        if not mf in freq:
+        list = [r.title for r in measurementFrequency.query.all()]
+        if not mf in list:
             db.session.add(measurementFrequency(title=mf))
 
     for st in actionStat:
-        stat = [r.title for r in actionStatus.query.all()]
-        if not st in stat:
+        list = [r.title for r in actionStatus.query.all()]
+        if not st in list:
             db.session.add(actionStatus(title=st))
 
     for unit in uom:
-        uo = [r.title for r in UOM.query.all()]
-        if not unit in uo:
+        list = [r.title for r in UOM.query.all()]
+        if not unit in list:
             db.session.add(UOM(title=unit))
 
     for obj in respObject:
-        resp = [r.title for r in responsibilityObject.query.all()]
-        if not obj in resp:
+        list = [r.title for r in responsibilityObject.query.all()]
+        if not obj in list:
             db.session.add(responsibilityObject(title=obj))
 
     for typ in respType:
-        types = [r.title for r in responsibilityType.query.all()]
-        if not typ in types:
+        list = [r.title for r in responsibilityType.query.all()]
+        if not typ in list:
             db.session.add(responsibilityType(title=typ))
 
     for stat in taskStat:
-        stats = [r.title for r in taskStatus.query.all()]
-        if not stat in stats:
+        list = [r.title for r in taskStatus.query.all()]
+        if not stat in list:
             db.session.add(taskStatus(title=stat))
 
     for lvl in stratLevel:
-        lvls = [r.title for r in strategyLevel.query.all()]
-        if not lvl in lvls:
+        list = [r.title for r in strategyLevel.query.all()]
+        if not lvl in list:
             db.session.add(strategyLevel(title=lvl))
 
     for day, abbr, no in weekDays:

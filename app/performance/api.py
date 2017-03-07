@@ -1,10 +1,12 @@
-from flask import Blueprint, jsonify, render_template, g
+from flask import Blueprint, jsonify, render_template, g, session
 from app.admin.services import requiredRole, loginRequired
 from app.crud.tenantCRUD import getCurrentTenant
+from app.crud.userCRUD import getUser
 from models import indicator
 from app.masterData.models import measurementFrequency, UOM, processType, indicatorType, goodPerformance
 import requests, flask_sijax
 from app.sijax.handler import SijaxHandler
+from app.chart.models import chartContainer
 
 APIperfBP = Blueprint('APIperfBP', __name__, template_folder='templates')
 
@@ -80,26 +82,32 @@ def container():
     if g.sijax.is_sijax_request:
         g.sijax.register_object(SijaxHandler)
         return g.sijax.process_request()
+
+    tenant = session['tenant_uuid']
+    user = session['user_uuid']
+
+    ind = indicator.query.filter_by(tenant_uuid=tenant).first()
+
+    try:
+        container = chartContainer.query.filter_by(tenant_uuid=tenant, indicator_id=ind.id, user_uuid=user).first()
+        container_id = container.id
+    except:
+        container = chartContainer.query.filter_by(tenant_uuid=tenant, indicator_id=ind.id, user_uuid=None).first()
+        container_id = container.id
         
+    print container.id
     
-    kwargs = {'containerTitle':'Container 1',
-              'containerUUID':unicode('3'),
-              'initialSize': 'col-xs-12 col-sm-12 col-md-9 col-lg-9'}
+    kwargs = {'containerTitle':container.title,
+              'containerID':container.id,
+              'initialSize': container.containerSize.size}
     
     container1 = (1, render_template('container/chartContainer.html', **kwargs))
+
     
-    kwargs = {'containerTitle':'Container 2',
-              'containerUUID':unicode('4'),
-              'initialSize': 'col-xs-12 col-sm-12 col-md-3 col-lg-3'}
-   
-    container2 = (2, render_template('container/chartContainer.html', **kwargs))
-    
-    containerList=[container1, container2]
-    containerList.sort(key = lambda row: row[0])
+    containerList=[container1]
     data = u''
     for c in containerList:
         data = data + unicode(c[1])
-        
     
     kwargs = {'baseContent':data}
     return render_template('base.html', **kwargs)

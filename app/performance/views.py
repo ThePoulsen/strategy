@@ -8,12 +8,13 @@ from app.crud.tenantCRUD import getCurrentTenant
 from forms import indicatorForm, selectIndicatorForm, newIndicatorTarget
 from app.masterData.services import frequencyList, uomList, processTypeList, indicatorTypeList, goodPerformanceList, userList
 from services import indicatorList, indicatorDetails
-from app.masterData.models import responsibilityType, responsibilityObject, responsibilityAssignment, calendar
+from app.masterData.models import responsibilityType, responsibilityObject, responsibilityAssignment, calendar, chartType, containerSize
 import uuid as UUID
 import flask_sijax, flot, distutils
 from datetime import date, timedelta, datetime
 from app.sijax.handler import SijaxHandler
 from app.chart.services import targetRange
+from app.chart.models import chartContainer
 
 perfBP = Blueprint('perfBP', __name__, template_folder='templates')
 
@@ -157,10 +158,12 @@ def indicatorManagementView(uuid=None, function=None):
                                     goodPerformance_id = indicatorGoodPerformance,
                                     tenant_uuid = unicode(ten['uuid']))
 
+                    db.session.add(ind)
+
                     owner = responsibilityAssignment(responsibilityObject_id = respObj.id,
-                                                    reference_uuid = unicode(ind.uuid),
-                                                    responsibilityType_id = respTypeOwner.id,
-                                                    user_uuid = unicode(indicatorOwner))
+                                                     reference_uuid = unicode(ind.uuid),
+                                                     responsibilityType_id = respTypeOwner.id,
+                                                     user_uuid = unicode(indicatorOwner))
                     db.session.add(owner)
 
                     responsible = indFrm.indicatorResponsible.data
@@ -171,14 +174,24 @@ def indicatorManagementView(uuid=None, function=None):
                                             user_uuid = r)
                         db.session.add(resp)
 
-                    db.session.add(ind)
+                    chartTyp = chartType.query.filter_by(title='area').first()
+                    containerSiz = containerSize.query.filter_by(title='veryLarge').first()
+                    container = chartContainer(title=unicode(indFrm.indicatorTitle.data),
+                                               chartType_id=chartTyp.id,
+                                               containerSize_id=containerSiz.id,
+                                               tenant_uuid=ten['uuid'],
+                                               indicator_id=ind.id)
+
+                    db.session.add(container)
+
                     db.session.commit()
                     successMessage('Indicator has been added')
                     return redirect(url_for('perfBP.indicatorListView'))
 
                 except Exception as E:
                     if 'duplicate key value violates unique constraint' in unicode(E):
-                        errorMessage('This indicator already exists')
+                        errorMessage(unicode(E))
+#                        errorMessage('This indicator already exists')
                     else:
                         errorMessage(unicode(E))
             return render_template('performance/indicatorForm.html', indicatorForm=indFrm, **kwargs)

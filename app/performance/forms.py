@@ -27,7 +27,7 @@ class newIndicatorTarget(FlaskForm):
     targetValidFrom = DateField('Valid From', format="%d/%m/%Y", validators=[InputRequired('Please select a date')])
     targetValidTo = DateField('Valid To', format="%d/%m/%Y", validators=[InputRequired('Please select a date')])
     valueFrom = FlexibleDecimalField('Value from', validators=[InputRequired('Please enter a value')])
-    valueTo = FlexibleDecimalField('Value to', validators=[InputRequired('Please enter a value')])
+    valueTo = FlexibleDecimalField('Value to')
 
     def validate_valueTo(self, field):
         if field.data <= self.valueFrom.data:

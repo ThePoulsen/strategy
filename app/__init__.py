@@ -31,12 +31,14 @@ flask_sijax.Sijax(app)
 #HTMLMIN(app)
 
 ## Import models
-from app.admin.models import *
+from app.chart.models import *
+from app.dashboard.models import *
 from app.masterData.models import *
 from app.performance.models import *
 
 ## import blueprints
 from app.admin.views import adminBP
+from app.dashboard.views import dashBP
 from app.auth.views import authBP
 from app.settings.views import settingsBP
 from app.user.views import userBP
@@ -48,6 +50,7 @@ from app.performance.api import APIperfBP
 
 ## Register blueprints
 app.register_blueprint(adminBP, url_prefix='/admin')
+app.register_blueprint(dashBP, url_prefix='/dashboard')
 app.register_blueprint(authBP, url_prefix='/authorization')
 app.register_blueprint(settingsBP, url_prefix='/settings')
 app.register_blueprint(userBP, url_prefix='/userManagement')

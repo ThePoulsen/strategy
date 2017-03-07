@@ -146,3 +146,20 @@ class goodPerformance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(), unique=True)
     desc = db.Column(db.String())
+
+class chartType(db.Model):
+    __tablename__ = 'chartType'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(), unique=True)
+
+    chartContainers = db.relationship('chartContainer', backref='chartType', lazy='dynamic')
+
+class containerSize(db.Model):
+    __tablename__ = 'containerSize'
+
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(), unique=True)
+    size = db.Column(db.String())
+
+    chartContainers = db.relationship('chartContainer', backref='containerSize', lazy='dynamic')
